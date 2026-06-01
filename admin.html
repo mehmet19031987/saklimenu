@@ -355,6 +355,11 @@ onValue(ref(db,'garson'),snap=>{
 onValue(ref(db,'menu'),snap=>{
   menuData=snap.val()||[];
   if(activePage==='urun') renderUrun();
+  // Yükleniyor yazısını kaldır
+  const ubody=document.getElementById('ubody');
+  if(ubody&&ubody.innerHTML.includes('Yükleniyor') && activePage!=='urun'){
+    ubody.innerHTML='';
+  }
 });
 
 function showBadge(txt){
@@ -381,7 +386,10 @@ window.gotoPage=p=>{
   const addBtn=document.getElementById('topbar-add-btn');
   addBtn.style.display=p==='urun'?'block':'none';
   if(p==='qr') renderQR();
-  if(p==='urun') renderUrun();
+  if(p==='urun'){
+    // menuData zaten yüklüyse direkt render et
+    setTimeout(()=>renderUrun(), 50);
+  }
   if(p==='hesap'){selectedDate=fdate();renderHesapList();}
 };
 
@@ -569,7 +577,13 @@ function renderQR(){
 // ÜRÜNLER
 function renderUrun(){
   const el=document.getElementById('ubody');
-  if(!menuData.length){el.innerHTML='<div class="empty-st"><div class="empty-ico">🍽️</div><div class="empty-txt">Yükleniyor...</div></div>';return;}
+  if(!menuData||!menuData.length){
+    // Menü henüz gelmedi, Firebase'den bekle
+    el.innerHTML='<div class="empty-st"><div class="empty-ico">⏳</div><div class="empty-txt">Yükleniyor...</div></div>';
+    // 3 saniye sonra tekrar dene
+    setTimeout(()=>{ if(menuData&&menuData.length) renderUrun(); },3000);
+    return;
+  }
   el.innerHTML=menuData.map(cat=>`
     <div>
       <div class="ucat-hd">
