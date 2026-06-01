@@ -7,14 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{
-  --g:#1D9E75;--gl:#E1F5EE;--gd:#0F6E56;--gddd:#04342C;
-  --am:#BA7517;--aml:#FAEEDA;--amd:#854F0B;
-  --rd:#E24B4A;--rdl:#FCEBEB;
-  --bg:#fff;--bg2:#f7f7f5;--bg3:#efefeb;
-  --t:#1a1a1a;--tm:#666;--th:#aaa;
-  --br:rgba(0,0,0,0.08);--br2:rgba(0,0,0,0.16)
-}
+:root{--g:#1D9E75;--gl:#E1F5EE;--gd:#0F6E56;--gddd:#04342C;--am:#BA7517;--aml:#FAEEDA;--amd:#854F0B;--rd:#E24B4A;--rdl:#FCEBEB;--bg:#fff;--bg2:#f7f7f5;--bg3:#efefeb;--t:#1a1a1a;--tm:#666;--th:#aaa;--br:rgba(0,0,0,0.08);--br2:rgba(0,0,0,0.16)}
 html,body{min-height:100%;background:var(--bg2)}
 body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t)}
 .mhdr{background:var(--gddd);padding:16px 14px 11px;position:sticky;top:0;z-index:50}
@@ -29,7 +22,8 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t)}
 .sec-hd{display:flex;align-items:center;gap:8px;padding:16px 13px 8px}
 .sec-nm{font-family:'Playfair Display',serif;font-size:16px;color:var(--t)}
 .items{padding:0 10px;display:flex;flex-direction:column;gap:8px;padding-bottom:170px}
-.icard{background:var(--bg);border:.5px solid var(--br);border-radius:13px;overflow:hidden}
+.icard{background:var(--bg);border:.5px solid var(--br);border-radius:13px;overflow:hidden;cursor:pointer;transition:border-color .2s}
+.icard:active{border-color:var(--br2)}
 .icard.sold{opacity:.5}
 .irow{display:flex;align-items:stretch}
 .iphoto{width:88px;height:88px;flex-shrink:0;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:32px;position:relative;overflow:hidden}
@@ -42,14 +36,15 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t)}
 .ibadges{display:flex;gap:4px;margin-bottom:5px;flex-wrap:wrap}
 .bp{font-size:9px;background:var(--aml);color:var(--amd);padding:2px 7px;border-radius:5px;font-weight:500}
 .bm{font-size:9px;background:#E6F1FB;color:#185FA5;padding:2px 7px;border-radius:5px;font-weight:500}
+.bopt{font-size:9px;background:#F0E6FB;color:#6B35A8;padding:2px 7px;border-radius:5px;font-weight:500}
 .ifoot{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .iprice{font-size:15px;font-weight:600;color:var(--g)}
 .iprice2{font-size:10px;color:var(--tm);margin-top:1px}
 .sold-lbl{font-size:10px;background:var(--rdl);color:var(--rd);padding:3px 10px;border-radius:6px;font-weight:500}
-.add-btn{width:36px;height:36px;border-radius:50%;background:var(--g);border:none;color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:300}
+.add-btn{width:36px;height:36px;border-radius:50%;background:var(--g);border:none;color:#fff;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .add-btn:active{transform:scale(.85)}
 .qctrl{display:flex;align-items:center;gap:8px}
-.qb{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--br2);background:var(--bg2);color:var(--t);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:400}
+.qb{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--br2);background:var(--bg2);color:var(--t);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .qb:active{background:var(--bg3)}
 .qn{font-size:15px;font-weight:600;min-width:20px;text-align:center;color:var(--t)}
 .note-btn{font-size:11px;color:var(--g);cursor:pointer;padding:4px 12px 8px;display:block;background:none;border:none;text-align:left;font-family:'DM Sans',sans-serif}
@@ -67,22 +62,52 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t)}
 .garson-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border:.5px solid var(--am);border-radius:12px;background:var(--aml);color:var(--amd);font-size:13px;font-weight:500;cursor:pointer;width:100%;font-family:'DM Sans',sans-serif}
 .garson-btn:active{transform:scale(.98)}
 .garson-btn.ok{background:var(--gl);border-color:var(--g);color:var(--gd)}
+
+/* SEÇENEK MODALı */
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
 .modal-bg.open{opacity:1;pointer-events:all}
-.modal-sheet{background:var(--bg);border-radius:22px 22px 0 0;width:100%;max-height:85vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);padding-bottom:env(safe-area-inset-bottom,0)}
+.modal-sheet{background:var(--bg);border-radius:22px 22px 0 0;width:100%;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);padding-bottom:env(safe-area-inset-bottom,0)}
 .modal-bg.open .modal-sheet{transform:translateY(0)}
-.shandle{width:36px;height:4px;background:var(--br2);border-radius:2px;margin:14px auto 16px}
+.shandle{width:36px;height:4px;background:var(--br2);border-radius:2px;margin:14px auto 12px}
+.opt-item-name{font-family:'Playfair Display',serif;font-size:18px;padding:0 16px;color:var(--t);margin-bottom:4px}
+.opt-item-price{font-size:14px;font-weight:500;color:var(--g);padding:0 16px;margin-bottom:14px}
+.opt-label{font-size:12px;font-weight:500;color:var(--tm);padding:0 16px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.opt-req{font-size:10px;background:var(--rdl);color:var(--rd);padding:2px 7px;border-radius:5px;font-weight:500}
+.opt-grid{display:flex;flex-direction:column;gap:6px;padding:0 16px;margin-bottom:14px}
+.opt-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border:.5px solid var(--br2);border-radius:10px;cursor:pointer;transition:all .2s;background:var(--bg)}
+.opt-item.selected{border-color:var(--g);background:var(--gl)}
+.opt-circle{width:20px;height:20px;border-radius:50%;border:1.5px solid var(--br2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.opt-item.selected .opt-circle{border-color:var(--g);background:var(--g)}
+.opt-check{color:#fff;font-size:12px;display:none}
+.opt-item.selected .opt-check{display:block}
+.opt-name{font-size:13px;color:var(--t);font-weight:500}
+.opt-divider{height:.5px;background:var(--br);margin:8px 16px}
+.note-opt-label{font-size:12px;font-weight:500;color:var(--tm);padding:0 16px;margin-bottom:6px}
+.note-opt-ta{width:calc(100% - 32px);margin:0 16px;font-size:12px;padding:8px 10px;border:.5px solid var(--br2);border-radius:8px;background:var(--bg);color:var(--t);resize:none;font-family:'DM Sans',sans-serif;line-height:1.5;display:block}
+.note-opt-ta:focus{outline:none;border-color:var(--g)}
+.opt-add-btn{margin:14px 16px 0;width:calc(100% - 32px);background:var(--g);color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.opt-add-btn:active{transform:scale(.98)}
+.opt-add-btn:disabled{background:var(--th);cursor:not-allowed}
+.opt-cancel{width:100%;background:transparent;border:none;color:var(--tm);font-size:12px;padding:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+
+/* CART MODALı */
+.cart-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.cart-modal-bg.open{opacity:1;pointer-events:all}
+.cart-sheet{background:var(--bg);border-radius:22px 22px 0 0;width:100%;max-height:88vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);padding-bottom:env(safe-area-inset-bottom,0)}
+.cart-modal-bg.open .cart-sheet{transform:translateY(0)}
 .sttl{font-family:'Playfair Display',serif;font-size:19px;padding:0 16px 13px;color:var(--t)}
 .sbody{padding:0 16px 24px}
 .ci{display:flex;align-items:flex-start;justify-content:space-between;padding:11px 0;border-bottom:.5px solid var(--br);gap:10px}
 .ci-nm{font-size:13px;font-weight:500;color:var(--t)}
 .ci-sub{font-size:11px;color:var(--tm);margin-top:2px}
-.ci-note{font-size:10px;color:var(--am);background:var(--aml);padding:2px 7px;border-radius:5px;margin-top:4px;font-style:italic;display:inline-block}
+.ci-opt{font-size:11px;color:#6B35A8;background:#F0E6FB;padding:2px 7px;border-radius:5px;margin-top:3px;display:inline-block}
+.ci-note{font-size:10px;color:var(--am);background:var(--aml);padding:2px 7px;border-radius:5px;margin-top:3px;font-style:italic;display:inline-block}
 .ci-pr{font-size:14px;font-weight:600;color:var(--g);white-space:nowrap}
 .stotal{display:flex;justify-content:space-between;padding:14px 0 4px;font-size:17px;font-weight:600;color:var(--t)}
 .sconfirm{width:100%;background:var(--g);color:#fff;border:none;border-radius:13px;padding:16px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin:14px 0 6px}
 .sconfirm:active{transform:scale(.98)}
 .scancel{width:100%;background:transparent;border:none;color:var(--tm);font-size:13px;padding:10px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:8px}
+
 .success-page{display:none;min-height:100vh;background:var(--gddd);flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 24px}
 .success-page.show{display:flex}
 .sico{width:72px;height:72px;border-radius:50%;background:rgba(159,225,203,.14);border:.5px solid rgba(159,225,203,.3);display:flex;align-items:center;justify-content:center;font-size:36px}
@@ -117,20 +142,36 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t)}
     <div class="cbadge" id="cbadge">0</div>
     <div class="clbl" id="clbl">Sepetim</div>
     <div class="ctot" id="ctot">₺0</div>
-    <button class="csee" onclick="openModal()">Görüntüle</button>
+    <button class="csee" onclick="openCartModal()">Görüntüle</button>
   </div>
   <button class="garson-btn" id="gbtn" onclick="callGarson()">🔔 Garson Çağır</button>
 </div>
 
-<div class="modal-bg" id="modal-bg" onclick="bgClick(event)">
-  <div class="modal-sheet">
+<!-- SEÇENEK MODALı -->
+<div class="modal-bg" id="opt-modal" onclick="closeOptModal(event)">
+  <div class="modal-sheet" id="opt-sheet">
+    <div class="shandle"></div>
+    <div class="opt-item-name" id="opt-item-name"></div>
+    <div class="opt-item-price" id="opt-item-price"></div>
+    <div id="opt-groups"></div>
+    <div class="opt-divider"></div>
+    <div class="note-opt-label">Not ekle (isteğe bağlı)</div>
+    <textarea class="note-opt-ta" id="opt-note" rows="2" placeholder="Özel isteğinizi yazın..."></textarea>
+    <button class="opt-add-btn" id="opt-add-btn" onclick="addToCartFromModal()">Sepete Ekle</button>
+    <button class="opt-cancel" onclick="closeOptModal()">Vazgeç</button>
+  </div>
+</div>
+
+<!-- CART MODALı -->
+<div class="cart-modal-bg" id="cart-modal" onclick="closeCartModal(event)">
+  <div class="cart-sheet">
     <div class="shandle"></div>
     <div class="sttl">Siparişim</div>
     <div class="sbody">
       <div id="cart-list"></div>
       <div class="stotal"><span>Toplam</span><span id="cart-total">₺0</span></div>
       <button class="sconfirm" onclick="placeOrder()">✓ Siparişi Gönder</button>
-      <button class="scancel" onclick="closeModal()">Vazgeç</button>
+      <button class="scancel" onclick="closeCartModal()">Vazgeç</button>
     </div>
   </div>
 </div>
@@ -165,99 +206,96 @@ const CURRENT_MASA = (()=>{
   return {id:'loca-1',name:'Loca 1',type:'loca'};
 })();
 
-const MENU = [
+const DEFAULT_MENU = [
   {id:'yiyecekler',name:'Yiyecekler',emoji:'🍔',items:[
-    {id:'y1',name:'Hamburger Tavuk',desc:'Izgara tavuk, özel sos',price:350,price2:400,emoji:'🍗',popular:true,soldOut:false,img:''},
-    {id:'y2',name:'Hamburger Et',desc:'Dana köfte, özel sos',price:400,price2:500,emoji:'🍔',popular:true,soldOut:false,img:''},
-    {id:'y3',name:'Pizza',desc:'Günün pizzası',price:550,price2:null,emoji:'🍕',popular:false,soldOut:false,img:''},
-    {id:'y4',name:'Köfte Ekmek',desc:'Izgara köfte, ekmek arası',price:350,price2:null,emoji:'🥙',popular:false,soldOut:false,img:''},
-    {id:'y5',name:'Tost Sucuklu',desc:'Sucuklu, eritilmiş kaşar',price:300,price2:null,emoji:'🥪',popular:false,soldOut:false,img:''},
-    {id:'y6',name:'Tost Kaşarlı',desc:'Kaşar peyniri',price:250,price2:null,emoji:'🥪',popular:false,soldOut:false,img:''},
-    {id:'y7',name:'Tost Karışık',desc:'Sucuk + kaşar',price:350,price2:null,emoji:'🥪',popular:false,soldOut:false,img:''},
+    {id:'y1',name:'Hamburger Tavuk',desc:'Izgara tavuk, özel sos',price:350,price2:400,emoji:'🍗',popular:true,soldOut:false,img:'',options:[]},
+    {id:'y2',name:'Hamburger Et',desc:'Dana köfte, özel sos',price:400,price2:500,emoji:'🍔',popular:true,soldOut:false,img:'',options:[]},
+    {id:'y3',name:'Pizza',desc:'Günün pizzası',price:550,price2:null,emoji:'🍕',popular:false,soldOut:false,img:'',options:[]},
+    {id:'y4',name:'Köfte Ekmek',desc:'Izgara köfte, ekmek arası',price:350,price2:null,emoji:'🥙',popular:false,soldOut:false,img:'',options:[]},
+    {id:'y5',name:'Tost Sucuklu',desc:'Sucuklu, eritilmiş kaşar',price:300,price2:null,emoji:'🥪',popular:false,soldOut:false,img:'',options:[]},
+    {id:'y6',name:'Tost Kaşarlı',desc:'Kaşar peyniri',price:250,price2:null,emoji:'🥪',popular:false,soldOut:false,img:'',options:[]},
+    {id:'y7',name:'Tost Karışık',desc:'Sucuk + kaşar',price:350,price2:null,emoji:'🥪',popular:false,soldOut:false,img:'',options:[]},
   ]},
   {id:'atistirmaliklar',name:'Atıştırmalıklar',emoji:'🍟',items:[
-    {id:'a1',name:'Patates Kızartması',desc:'Normal porsiyon',price:350,price2:null,emoji:'🍟',popular:true,soldOut:false,img:''},
-    {id:'a2',name:'Patates Double',desc:'Büyük porsiyon',price:500,price2:null,emoji:'🍟',popular:false,soldOut:false,img:''},
-    {id:'a3',name:'Kızartma Tabağı',desc:'Karışık kızartma',price:500,price2:null,emoji:'🍽️',popular:false,soldOut:false,img:''},
-    {id:'a4',name:'Kahvaltı Tabağı',desc:'Zengin kahvaltı',price:350,price2:null,emoji:'🍳',popular:false,soldOut:false,img:''},
-    {id:'a5',name:'Çerez Tabağı',desc:'Karışık kuruyemiş',price:300,price2:null,emoji:'🥜',popular:false,soldOut:false,img:''},
+    {id:'a1',name:'Patates Kızartması',desc:'Normal porsiyon',price:350,price2:null,emoji:'🍟',popular:true,soldOut:false,img:'',options:[]},
+    {id:'a2',name:'Patates Double',desc:'Büyük porsiyon',price:500,price2:null,emoji:'🍟',popular:false,soldOut:false,img:'',options:[]},
+    {id:'a3',name:'Kızartma Tabağı',desc:'Karışık kızartma',price:500,price2:null,emoji:'🍽️',popular:false,soldOut:false,img:'',options:[]},
+    {id:'a4',name:'Kahvaltı Tabağı',desc:'Zengin kahvaltı',price:350,price2:null,emoji:'🍳',popular:false,soldOut:false,img:'',options:[]},
+    {id:'a5',name:'Çerez Tabağı',desc:'Karışık kuruyemiş',price:300,price2:null,emoji:'🥜',popular:false,soldOut:false,img:'',options:[]},
   ]},
   {id:'sicak',name:'Sıcak İçecekler',emoji:'☕',items:[
-    {id:'s1',name:'Americano',desc:'Espresso + sıcak su',price:225,price2:null,emoji:'☕',popular:false,soldOut:false,img:''},
-    {id:'s2',name:'Filtre Kahve',desc:'Günlük filtre',price:225,price2:null,emoji:'☕',popular:false,soldOut:false,img:''},
-    {id:'s3',name:'Espresso',desc:'Çift shot',price:150,price2:null,emoji:'☕',popular:false,soldOut:false,img:''},
-    {id:'s4',name:'Türk Kahvesi',desc:'Orta, sade veya şekerli',price:100,price2:null,emoji:'🫖',popular:true,soldOut:false,img:''},
-    {id:'s5',name:'Süvari Kahve',desc:'',price:100,price2:null,emoji:'☕',popular:false,soldOut:false,img:''},
-    {id:'s6',name:'Latte',desc:'Espresso + süt köpüğü',price:300,price2:null,emoji:'🥛',popular:false,soldOut:false,img:''},
-    {id:'s7',name:'Mocha',desc:'Espresso + çikolata',price:300,price2:null,emoji:'🍫',popular:false,soldOut:false,img:''},
-    {id:'s8',name:'Flat White',desc:'Çift shot + süt',price:300,price2:null,emoji:'☕',popular:false,soldOut:false,img:''},
-    {id:'s9',name:'Cappuccino',desc:'Espresso + köpüklü süt',price:350,price2:null,emoji:'☕',popular:true,soldOut:false,img:''},
-    {id:'s10',name:'Dondurmalı Kahve',desc:'Soğuk servis',price:350,price2:null,emoji:'🧋',popular:true,soldOut:false,img:''},
-    {id:'s11',name:'Bitki Çayı',desc:'Ihlamur, ada çayı',price:150,price2:null,emoji:'🌿',popular:false,soldOut:false,img:''},
-    {id:'s12',name:'Çay',desc:'Demlik çay',price:50,price2:null,emoji:'🍵',popular:false,soldOut:false,img:''},
+    {id:'s1',name:'Americano',desc:'Espresso + sıcak su',price:225,price2:null,emoji:'☕',popular:false,soldOut:false,img:'',options:[]},
+    {id:'s2',name:'Filtre Kahve',desc:'Günlük filtre',price:225,price2:null,emoji:'☕',popular:false,soldOut:false,img:'',options:[]},
+    {id:'s3',name:'Espresso',desc:'Çift shot',price:150,price2:null,emoji:'☕',popular:false,soldOut:false,img:'',options:[]},
+    {id:'s4',name:'Türk Kahvesi',desc:'Orta, sade veya şekerli',price:100,price2:null,emoji:'🫖',popular:true,soldOut:false,img:'',options:[{label:'Şeker',choices:['Sade','Az Şeker','Orta','Çok Şeker'],required:true}]},
+    {id:'s5',name:'Süvari Kahve',desc:'',price:100,price2:null,emoji:'☕',popular:false,soldOut:false,img:'',options:[]},
+    {id:'s6',name:'Latte',desc:'Espresso + süt köpüğü',price:300,price2:null,emoji:'🥛',popular:false,soldOut:false,img:'',options:[]},
+    {id:'s7',name:'Mocha',desc:'Espresso + çikolata',price:300,price2:null,emoji:'🍫',popular:false,soldOut:false,img:'',options:[]},
+    {id:'s8',name:'Flat White',desc:'Çift shot + süt',price:300,price2:null,emoji:'☕',popular:false,soldOut:false,img:'',options:[]},
+    {id:'s9',name:'Cappuccino',desc:'Espresso + köpüklü süt',price:350,price2:null,emoji:'☕',popular:true,soldOut:false,img:'',options:[]},
+    {id:'s10',name:'Dondurmalı Kahve',desc:'Soğuk servis',price:350,price2:null,emoji:'🧋',popular:true,soldOut:false,img:'',options:[]},
+    {id:'s11',name:'Bitki Çayı',desc:'Ihlamur, ada çayı, kuşburnu',price:150,price2:null,emoji:'🌿',popular:false,soldOut:false,img:'',options:[{label:'Çeşit',choices:['Ihlamur','Ada Çayı','Kuşburnu','Papatya','Nane-Limon'],required:true}]},
+    {id:'s12',name:'Çay',desc:'Demlik çay',price:50,price2:null,emoji:'🍵',popular:false,soldOut:false,img:'',options:[]},
   ]},
   {id:'soguk',name:'Soğuk İçecekler',emoji:'🧃',items:[
-    {id:'i1',name:'Kola',desc:'330ml kutu',price:150,price2:null,emoji:'🥤',popular:false,soldOut:false,img:''},
-    {id:'i2',name:'Ayran',desc:'Ev yapımı, soğuk',price:100,price2:null,emoji:'🥛',popular:false,soldOut:false,img:''},
-    {id:'i3',name:'Sprite',desc:'330ml kutu',price:150,price2:null,emoji:'🥤',popular:false,soldOut:false,img:''},
-    {id:'i4',name:'Ice Tea',desc:'Soğuk çay',price:150,price2:null,emoji:'🧊',popular:false,soldOut:false,img:''},
-    {id:'i5',name:'Meyve Suyu',desc:'Günlük taze',price:150,price2:null,emoji:'🍊',popular:false,soldOut:false,img:''},
-    {id:'i6',name:'Limonata',desc:'Taze sıkım, nane',price:250,price2:null,emoji:'🍋',popular:true,soldOut:false,img:''},
-    {id:'i7',name:'Hibiscus',desc:'Soğuk demleme',price:250,price2:null,emoji:'🌺',popular:false,soldOut:false,img:''},
-    {id:'i8',name:'Kokteyl',desc:'Mevsim kokteyli',price:300,price2:null,emoji:'🍹',popular:false,soldOut:false,img:''},
-    {id:'i9',name:'Milkshake',desc:'Çikolata, vanilya veya çilek',price:350,price2:null,emoji:'🥤',popular:true,soldOut:false,img:''},
-    {id:'i10',name:'Su 0.5L',desc:'Soğuk',price:30,price2:null,emoji:'💧',popular:false,soldOut:false,img:''},
-    {id:'i11',name:'Soda',desc:'',price:40,price2:null,emoji:'🫧',popular:false,soldOut:false,img:''},
-    {id:'i12',name:'Meyveli Soda',desc:'',price:80,price2:null,emoji:'🍓',popular:false,soldOut:false,img:''},
-    {id:'i13',name:'Churchill',desc:'',price:100,price2:null,emoji:'🥤',popular:false,soldOut:false,img:''},
+    {id:'i1',name:'Kola',desc:'330ml kutu',price:150,price2:null,emoji:'🥤',popular:false,soldOut:false,img:'',options:[]},
+    {id:'i2',name:'Ayran',desc:'Ev yapımı, soğuk',price:100,price2:null,emoji:'🥛',popular:false,soldOut:false,img:'',options:[]},
+    {id:'i3',name:'Sprite',desc:'330ml kutu',price:150,price2:null,emoji:'🥤',popular:false,soldOut:false,img:'',options:[]},
+    {id:'i4',name:'Ice Tea',desc:'Soğuk çay',price:150,price2:null,emoji:'🧊',popular:false,soldOut:false,img:'',options:[{label:'Aroma',choices:['Şeftali','Limon','Karpuz','Çilek','Böğürtlen'],required:true}]},
+    {id:'i5',name:'Meyve Suyu',desc:'Günlük taze',price:150,price2:null,emoji:'🍊',popular:false,soldOut:false,img:'',options:[]},
+    {id:'i6',name:'Limonata',desc:'Taze sıkım, nane',price:250,price2:null,emoji:'🍋',popular:true,soldOut:false,img:'',options:[]},
+    {id:'i7',name:'Hibiscus',desc:'Soğuk demleme',price:250,price2:null,emoji:'🌺',popular:false,soldOut:false,img:'',options:[]},
+    {id:'i8',name:'Kokteyl',desc:'Mevsim kokteyli',price:300,price2:null,emoji:'🍹',popular:false,soldOut:false,img:'',options:[]},
+    {id:'i9',name:'Milkshake',desc:'Çikolata, vanilya veya çilek',price:350,price2:null,emoji:'🥤',popular:true,soldOut:false,img:'',options:[{label:'Aroma',choices:['Çikolata','Vanilyalı','Çilek','Karamel','Muz'],required:true}]},
+    {id:'i10',name:'Su 0.5L',desc:'Soğuk',price:30,price2:null,emoji:'💧',popular:false,soldOut:false,img:'',options:[]},
+    {id:'i11',name:'Soda',desc:'',price:40,price2:null,emoji:'🫧',popular:false,soldOut:false,img:'',options:[]},
+    {id:'i12',name:'Meyveli Soda',desc:'',price:80,price2:null,emoji:'🍓',popular:false,soldOut:false,img:'',options:[{label:'Aroma',choices:['Çilek','Limon','Portakal','Karpuz','Şeftali','Böğürtlen'],required:true}]},
+    {id:'i13',name:'Churchill',desc:'',price:100,price2:null,emoji:'🥤',popular:false,soldOut:false,img:'',options:[]},
   ]},
   {id:'dondurmalar',name:'Dondurmalar',emoji:'🍦',items:[
-    {id:'d1',name:'Dondurma',desc:'Çeşitler için sorunuz',price:0,price2:null,emoji:'🍦',popular:false,soldOut:false,img:''},
+    {id:'d1',name:'Dondurma',desc:'Çeşitler için sorunuz',price:0,price2:null,emoji:'🍦',popular:false,soldOut:false,img:'',options:[]},
   ]},
   {id:'tatlilar',name:'Tatlılar',emoji:'🧇',items:[
-    {id:'t1',name:'Waffle',desc:'Muzlu-çikolatalı sos',price:450,price2:null,emoji:'🧇',popular:true,soldOut:false,img:''},
-    {id:'t2',name:'Meyve Tabağı',desc:'Taze mevsim meyveleri',price:300,price2:null,emoji:'🍓',popular:false,soldOut:false,img:''},
-    {id:'t3',name:'Makarna Çeşitleri',desc:'Günlük menü',price:400,price2:null,emoji:'🍝',popular:false,soldOut:false,img:''},
+    {id:'t1',name:'Waffle',desc:'Muzlu-çikolatalı sos',price:450,price2:null,emoji:'🧇',popular:true,soldOut:false,img:'',options:[]},
+    {id:'t2',name:'Meyve Tabağı',desc:'Taze mevsim meyveleri',price:300,price2:null,emoji:'🍓',popular:false,soldOut:false,img:'',options:[]},
+    {id:'t3',name:'Makarna Çeşitleri',desc:'Günlük menü',price:400,price2:null,emoji:'🍝',popular:false,soldOut:false,img:'',options:[]},
   ]},
 ];
 
-let menuData = JSON.parse(JSON.stringify(MENU));
-let cart = {}, notes = {}, activeCat = MENU[0].id;
+let menuData=[], cart=[], activeCat='';
+let currentOptItem=null, selectedOptions={};
 
-const fi = id => { for(const c of menuData){const f=c.items&&c.items.find(i=>i.id==id);if(f)return f;} return null; };
-const cnt = () => Object.values(cart).reduce((a,b)=>a+b,0);
-const tot = () => { let t=0; for(const[id,q]of Object.entries(cart)){const it=fi(id);if(it)t+=it.price*q;} return t; };
-const ftime = () => new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
-const fdate = () => new Date().toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const ftime=()=>new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
+const fdate=()=>new Date().toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
 
-// Önce menüyü hemen göster, Firebase güncellemesi gelirse uygula
-renderCats();
-renderMenu();
-document.getElementById('mh-masa').textContent = CURRENT_MASA.name;
+const fi=id=>{ for(const c of menuData){const f=c.items&&c.items.find(i=>i.id==id);if(f)return f;} return null; };
+const getTotal=()=>cart.reduce((s,i)=>s+i.price*i.qty,0);
+const getCount=()=>cart.reduce((s,i)=>s+i.qty,0);
 
-// Firebase'den güncelleme gelirse menüyü güncelle
-onValue(ref(db,'menu'), snap=>{
-  const data = snap.val();
-  if(data){ menuData = data; renderCats(); renderMenu(); }
-  else { set(ref(db,'menu'), MENU); }
+onValue(ref(db,'menu'),snap=>{
+  const data=snap.val();
+  menuData=data||DEFAULT_MENU;
+  if(!data) set(ref(db,'menu'),DEFAULT_MENU);
+  if(!activeCat && menuData.length) activeCat=menuData[0].id;
+  renderCats(); renderMenu();
 });
 
 function renderCats(){
-  document.getElementById('catrow').innerHTML = menuData.map(c=>
+  document.getElementById('catrow').innerHTML=menuData.map(c=>
     `<button class="cpill${c.id===activeCat?' active':''}" onclick="setCat('${c.id}')">${c.emoji} ${c.name}</button>`
   ).join('');
 }
 
-window.setCat = id => { activeCat=id; renderCats(); renderMenu(); window.scrollTo(0,0); };
+window.setCat=id=>{ activeCat=id; renderCats(); renderMenu(); window.scrollTo(0,0); };
 
 function renderMenu(){
-  const cat = menuData.find(c=>c.id===activeCat);
-  if(!cat){ document.getElementById('mbody').innerHTML=''; return; }
-  document.getElementById('mbody').innerHTML = `
+  const cat=menuData.find(c=>c.id===activeCat);
+  if(!cat){document.getElementById('mbody').innerHTML='';return;}
+  document.getElementById('mbody').innerHTML=`
     <div class="sec-hd"><span style="font-size:20px">${cat.emoji}</span><span class="sec-nm">${cat.name}</span></div>
     <div class="items">
       ${(cat.items||[]).map(it=>`
-        <div class="icard${it.soldOut?' sold':''}">
+        <div class="icard${it.soldOut?' sold':''}" onclick="${it.soldOut?'':it.options&&it.options.length?`openOptModal('${it.id}')`:''}" >
           <div class="irow">
             <div class="iphoto">
               <span>${it.emoji||'🍽️'}</span>
@@ -271,6 +309,7 @@ function renderMenu(){
                 <div class="ibadges">
                   ${it.popular?'<span class="bp">Popüler</span>':''}
                   ${it.price2?'<span class="bm">Menü mevcut</span>':''}
+                  ${it.options&&it.options.length?'<span class="bopt">Seçenek var</span>':''}
                 </div>
               </div>
               <div class="ifoot">
@@ -278,118 +317,201 @@ function renderMenu(){
                   <div class="iprice">₺${it.price}</div>
                   ${it.price2?`<div class="iprice2">Menü ₺${it.price2}</div>`:''}
                 </div>
-                ${it.soldOut
-                  ? '<span class="sold-lbl">Tükendi</span>'
-                  : `<div id="qty-${it.id}"><button class="add-btn" onclick="setQty('${it.id}',1)">+</button></div>`
+                ${it.soldOut?'<span class="sold-lbl">Tükendi</span>':
+                  it.options&&it.options.length
+                    ? `<button class="add-btn" onclick="event.stopPropagation();openOptModal('${it.id}')">+</button>`
+                    : `<div id="qty-${it.id}"><button class="add-btn" onclick="event.stopPropagation();directAdd('${it.id}')">+</button></div>`
                 }
               </div>
             </div>
           </div>
-          ${!it.soldOut?`
-            <button class="note-btn" id="nb-${it.id}" onclick="toggleNote('${it.id}')">+ Not ekle</button>
+          ${!it.soldOut&&!(it.options&&it.options.length)?`
+            <button class="note-btn" id="nb-${it.id}" onclick="event.stopPropagation();toggleNote('${it.id}')">+ Not ekle</button>
             <div class="note-wrap" id="nw-${it.id}">
-              <textarea class="note-ta" rows="2" placeholder="Özel isteğinizi yazın..." oninput="notes['${it.id}']=this.value">${notes[it.id]||''}</textarea>
+              <textarea class="note-ta" rows="2" placeholder="Özel isteğinizi yazın..." id="nta-${it.id}"></textarea>
             </div>
           `:''}
         </div>
       `).join('')}
     </div>`;
-  for(const id of Object.keys(cart)){
-    const q = cart[id];
-    const el = document.getElementById('qty-'+id);
-    if(el && q>0) el.innerHTML = `<div class="qctrl"><button class="qb" onclick="setQty('${id}',${q-1})">−</button><span class="qn">${q}</span><button class="qb" onclick="setQty('${id}',${q+1})">+</button></div>`;
+  updateQtyDisplays();
+}
+
+function updateQtyDisplays(){
+  for(const group of cart){
+    if(!group.optionSelections||Object.keys(group.optionSelections).length===0){
+      const el=document.getElementById('qty-'+group.itemId);
+      if(el) el.innerHTML=group.qty===0
+        ?`<button class="add-btn" onclick="event.stopPropagation();directAdd('${group.itemId}')">+</button>`
+        :`<div class="qctrl"><button class="qb" onclick="event.stopPropagation();directRemove('${group.itemId}')">−</button><span class="qn">${group.qty}</span><button class="qb" onclick="event.stopPropagation();directAdd('${group.itemId}')">+</button></div>`;
+    }
   }
 }
 
-window.toggleNote = id => {
-  const w=document.getElementById('nw-'+id), b=document.getElementById('nb-'+id);
-  if(!w||!b) return;
+window.toggleNote=id=>{
+  const w=document.getElementById('nw-'+id),b=document.getElementById('nb-'+id);
+  if(!w||!b)return;
   const o=w.classList.toggle('open');
-  b.textContent = o ? '− Notu kapat' : '+ Not ekle';
+  b.textContent=o?'− Notu kapat':'+ Not ekle';
 };
 
-window.setQty = (id,q) => {
-  if(q<=0){ delete cart[id]; } else { cart[id]=q; }
-  const el = document.getElementById('qty-'+id);
-  if(el){
-    if(!cart[id]){
-      el.innerHTML = `<button class="add-btn" onclick="setQty('${id}',1)">+</button>`;
-    } else {
-      el.innerHTML = `<div class="qctrl"><button class="qb" onclick="setQty('${id}',${cart[id]-1})">−</button><span class="qn">${cart[id]}</span><button class="qb" onclick="setQty('${id}',${cart[id]+1})">+</button></div>`;
-    }
-  }
+// Seçeneksiz ürün direkt ekle
+window.directAdd=id=>{
+  const it=fi(id); if(!it)return;
+  const existing=cart.find(c=>c.itemId===id&&(!c.optionSelections||Object.keys(c.optionSelections).length===0));
+  const note=document.getElementById('nta-'+id)?.value||'';
+  if(existing){ existing.qty++; }
+  else { cart.push({itemId:id,name:it.name,price:it.price,qty:1,optionSelections:{},note}); }
+  updateBar(); updateQtyDisplays();
+};
+
+window.directRemove=id=>{
+  const existing=cart.find(c=>c.itemId===id&&(!c.optionSelections||Object.keys(c.optionSelections).length===0));
+  if(!existing)return;
+  existing.qty--;
+  if(existing.qty<=0) cart.splice(cart.indexOf(existing),1);
+  updateBar(); updateQtyDisplays();
+};
+
+// Seçenekli ürün modal
+window.openOptModal=id=>{
+  const it=fi(id); if(!it)return;
+  currentOptItem=it;
+  selectedOptions={};
+  document.getElementById('opt-item-name').textContent=it.name;
+  document.getElementById('opt-item-price').textContent='₺'+it.price;
+  document.getElementById('opt-note').value='';
+  const groups=document.getElementById('opt-groups');
+  groups.innerHTML=(it.options||[]).map((opt,gi)=>`
+    <div style="margin-bottom:12px">
+      <div class="opt-label">
+        ${opt.label}
+        ${opt.required?'<span class="opt-req">Zorunlu</span>':'<span style="font-size:10px;color:var(--th)">(İsteğe bağlı)</span>'}
+      </div>
+      <div class="opt-grid">
+        ${opt.choices.map((ch,ci)=>`
+          <div class="opt-item" id="opt-${gi}-${ci}" onclick="selectOpt(${gi},${ci},'${ch}')">
+            <div class="opt-circle"><span class="opt-check">✓</span></div>
+            <div class="opt-name">${ch}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  updateOptBtn();
+  document.getElementById('opt-modal').classList.add('open');
+};
+
+window.selectOpt=(gi,ci,val)=>{
+  const it=currentOptItem; if(!it)return;
+  const opt=it.options[gi];
+  // Aynı grupta diğerlerini kaldır
+  opt.choices.forEach((_,i)=>document.getElementById(`opt-${gi}-${i}`)?.classList.remove('selected'));
+  document.getElementById(`opt-${gi}-${ci}`)?.classList.add('selected');
+  selectedOptions[gi]={label:opt.label,value:val};
+  updateOptBtn();
+};
+
+function updateOptBtn(){
+  const it=currentOptItem; if(!it)return;
+  const requiredGroups=(it.options||[]).filter(o=>o.required);
+  const allSelected=requiredGroups.every((_,i)=>{
+    const realIdx=(it.options||[]).indexOf(requiredGroups[i]);
+    return selectedOptions[realIdx]!==undefined;
+  });
+  // Daha basit kontrol: zorunlu olan index'leri bul
+  const reqIdxs=(it.options||[]).map((o,i)=>o.required?i:-1).filter(i=>i>=0);
+  const allReqSelected=reqIdxs.every(i=>selectedOptions[i]!==undefined);
+  const btn=document.getElementById('opt-add-btn');
+  btn.disabled=!allReqSelected;
+  btn.textContent=allReqSelected?'Sepete Ekle ✓':'Seçim yapın...';
+}
+
+window.addToCartFromModal=()=>{
+  const it=currentOptItem; if(!it)return;
+  const note=document.getElementById('opt-note').value;
+  const opts=Object.values(selectedOptions);
+  cart.push({itemId:it.id,name:it.name,price:it.price,qty:1,optionSelections:selectedOptions,optionText:opts.map(o=>o.value).join(', '),note});
   updateBar();
+  closeOptModal();
+};
+
+window.closeOptModal=e=>{
+  if(!e||e.target===document.getElementById('opt-modal'))
+    document.getElementById('opt-modal').classList.remove('open');
 };
 
 function updateBar(){
-  const c=cnt(), bar=document.getElementById('cbar');
-  if(c===0){ bar.classList.add('hidden'); return; }
+  const c=getCount(),bar=document.getElementById('cbar');
+  if(c===0){bar.classList.add('hidden');return;}
   bar.classList.remove('hidden');
-  document.getElementById('cbadge').textContent = c;
-  document.getElementById('ctot').textContent = '₺'+tot();
-  document.getElementById('clbl').textContent = c+' ürün seçildi';
+  document.getElementById('cbadge').textContent=c;
+  document.getElementById('ctot').textContent='₺'+getTotal();
+  document.getElementById('clbl').textContent=c+' ürün seçildi';
 }
 
-window.openModal = () => {
-  const entries = Object.entries(cart).filter(([,q])=>q>0);
-  document.getElementById('cart-list').innerHTML = entries.map(([id,qty])=>{
-    const it=fi(id), note=notes[id];
-    return `<div class="ci">
+window.openCartModal=()=>{
+  document.getElementById('cart-list').innerHTML=cart.filter(i=>i.qty>0).map((item,idx)=>`
+    <div class="ci">
       <div style="flex:1;min-width:0">
-        <div class="ci-nm">${it.name} <span style="font-weight:400;color:var(--tm)">× ${qty}</span></div>
-        <div class="ci-sub">₺${it.price} / adet</div>
-        ${note?`<span class="ci-note">"${note}"</span>`:''}
+        <div class="ci-nm">${item.name} <span style="font-weight:400;color:var(--tm)">× ${item.qty}</span></div>
+        <div class="ci-sub">₺${item.price} / adet</div>
+        ${item.optionText?`<span class="ci-opt">${item.optionText}</span>`:''}
+        ${item.note?`<span class="ci-note">"${item.note}"</span>`:''}
       </div>
-      <div class="ci-pr">₺${it.price*qty}</div>
-    </div>`;
-  }).join('');
-  document.getElementById('cart-total').textContent = '₺'+tot();
-  document.getElementById('modal-bg').classList.add('open');
+      <div class="ci-pr">₺${item.price*item.qty}</div>
+    </div>`).join('');
+  document.getElementById('cart-total').textContent='₺'+getTotal();
+  document.getElementById('cart-modal').classList.add('open');
 };
 
-window.closeModal = () => { document.getElementById('modal-bg').classList.remove('open'); };
-window.bgClick = e => { if(e.target===document.getElementById('modal-bg')) closeModal(); };
+window.closeCartModal=e=>{
+  if(!e||e.target===document.getElementById('cart-modal'))
+    document.getElementById('cart-modal').classList.remove('open');
+};
 
-window.placeOrder = async () => {
-  const entries = Object.entries(cart).filter(([,q])=>q>0);
-  if(!entries.length) return;
-  const orderRef = push(ref(db,'orders'));
-  await set(orderRef, {
-    id: orderRef.key,
-    masa: CURRENT_MASA.name,
-    masaId: CURRENT_MASA.id,
-    masaType: CURRENT_MASA.type,
-    time: ftime(),
-    date: fdate(),
-    items: entries.map(([id,qty])=>({
-      itemId:id, name:fi(id).name, price:fi(id).price, qty, note:notes[id]||''
+window.placeOrder=async()=>{
+  if(!cart.length)return;
+  const orderRef=push(ref(db,'orders'));
+  await set(orderRef,{
+    id:orderRef.key,
+    masa:CURRENT_MASA.name,
+    masaId:CURRENT_MASA.id,
+    masaType:CURRENT_MASA.type,
+    time:ftime(),
+    date:fdate(),
+    items:cart.map(i=>({
+      itemId:i.itemId,name:i.name,price:i.price,qty:i.qty,
+      options:i.optionText||'',note:i.note||''
     })),
-    status: 'hazirlaniyor',
-    total: tot()
+    status:'hazirlaniyor',
+    total:getTotal()
   });
-  cart={}; notes={};
+  cart=[];
   updateBar();
-  closeModal();
-  document.getElementById('page-menu').style.display = 'none';
-  document.getElementById('cart-fixed').style.display = 'none';
+  closeCartModal();
+  document.getElementById('page-menu').style.display='none';
+  document.getElementById('cart-fixed').style.display='none';
   document.getElementById('success-page').classList.add('show');
 };
 
-window.backToMenu = () => {
+window.backToMenu=()=>{
   document.getElementById('success-page').classList.remove('show');
-  document.getElementById('page-menu').style.display = 'block';
-  document.getElementById('cart-fixed').style.display = 'block';
+  document.getElementById('page-menu').style.display='block';
+  document.getElementById('cart-fixed').style.display='block';
   renderMenu();
 };
 
-window.callGarson = async () => {
-  const btn = document.getElementById('gbtn');
-  const gref = push(ref(db,'garson'));
-  await set(gref, {id:gref.key, masa:CURRENT_MASA.name, masaId:CURRENT_MASA.id, time:ftime()});
+window.callGarson=async()=>{
+  const btn=document.getElementById('gbtn');
+  const gref=push(ref(db,'garson'));
+  await set(gref,{id:gref.key,masa:CURRENT_MASA.name,masaId:CURRENT_MASA.id,time:ftime()});
   btn.classList.add('ok');
-  btn.textContent = '✓ Garson Çağrıldı';
-  setTimeout(()=>{ btn.classList.remove('ok'); btn.textContent='🔔 Garson Çağır'; }, 4000);
+  btn.textContent='✓ Garson Çağrıldı';
+  setTimeout(()=>{btn.classList.remove('ok');btn.textContent='🔔 Garson Çağır';},4000);
 };
+
+document.getElementById('mh-masa').textContent=CURRENT_MASA.name;
 </script>
 </body>
 </html>

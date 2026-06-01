@@ -623,9 +623,21 @@ window.dragEnd=()=>{ document.querySelectorAll('.ucard').forEach(el=>el.classLis
 window.handleUrunImg=(id,input)=>{
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=async e=>{
-    for(const c of menuData){const it=c.items&&c.items.find(i=>i.id==id);if(it){it.img=e.target.result;break;}}
-    await set(ref(db,'menu'),menuData);
+  reader.onload=e=>{
+    const img=new Image();
+    img.onload=async()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=400;
+      let w=img.width,h=img.height;
+      if(w>h&&w>MAX){h=h*MAX/w;w=MAX;}
+      else if(h>MAX){w=w*MAX/h;h=MAX;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.7);
+      for(const c of menuData){const it=c.items&&c.items.find(i=>i.id==id);if(it){it.img=compressed;break;}}
+      await set(ref(db,'menu'),menuData);
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 };
@@ -661,17 +673,29 @@ window.openAddModal=catId=>{
 };
 window.closeAddModal=e=>{ if(!e||e.target===document.getElementById('add-ov')) document.getElementById('add-ov').classList.remove('open'); };
 
+function syncOptGroupsFromDOM(){
+  adminOptGroups.forEach((g,gi)=>{
+    const labelEl=document.getElementById(`opt-label-inp-${gi}`);
+    const reqEl=document.getElementById(`opt-req-sel-${gi}`);
+    if(labelEl) g.label=labelEl.value;
+    if(reqEl) g.required=reqEl.value==='1';
+  });
+}
+
 window.addOptGroup=()=>{
+  syncOptGroupsFromDOM();
   adminOptGroups.push({label:'',choices:[],required:true});
   renderAdminOptGroups();
 };
 
 window.removeOptGroup=idx=>{
+  syncOptGroupsFromDOM();
   adminOptGroups.splice(idx,1);
   renderAdminOptGroups();
 };
 
 window.addOptChoice=idx=>{
+  syncOptGroupsFromDOM();
   const inp=document.getElementById(`opt-choice-inp-${idx}`);
   const val=inp.value.trim();
   if(!val)return;
@@ -681,6 +705,7 @@ window.addOptChoice=idx=>{
 };
 
 window.removeOptChoice=(gi,ci)=>{
+  syncOptGroupsFromDOM();
   adminOptGroups[gi].choices.splice(ci,1);
   renderAdminOptGroups();
 };
@@ -693,14 +718,13 @@ function renderAdminOptGroups(){
   el.innerHTML=adminOptGroups.map((g,gi)=>`
     <div class="opt-group-wrap">
       <div class="opt-group-header">
-        <input style="flex:1;font-size:12px;padding:4px 8px;border:.5px solid var(--br2);border-radius:6px;background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif" 
-          placeholder="Grup adı (örn. Aroma, Şeker...)" value="${g.label}" 
-          oninput="updateOptLabel(${gi},this.value)">
+        <input id="opt-label-inp-${gi}" style="flex:1;font-size:12px;padding:4px 8px;border:.5px solid var(--br2);border-radius:6px;background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif" 
+          placeholder="Grup adı (örn. Aroma, Şeker...)" value="${g.label}">
         <button class="opt-del-btn" onclick="removeOptGroup(${gi})" style="margin-left:6px">Sil</button>
       </div>
       <div style="display:flex;gap:4px;align-items:center;margin-bottom:8px">
         <label style="font-size:11px;color:var(--tm)">Zorunlu:</label>
-        <select style="font-size:11px;padding:3px 6px;border:.5px solid var(--br2);border-radius:5px;background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif" onchange="updateOptRequired(${gi},this.value)">
+        <select id="opt-req-sel-${gi}" style="font-size:11px;padding:3px 6px;border:.5px solid var(--br2);border-radius:5px;background:var(--bg);color:var(--t);font-family:'DM Sans',sans-serif">
           <option value="1" ${g.required?'selected':''}>Evet</option>
           <option value="0" ${!g.required?'selected':''}>Hayır</option>
         </select>
@@ -723,14 +747,27 @@ window.handleImgUp=input=>{
   const file=input.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=e=>{
-    document.getElementById('fimg').value=e.target.result;
-    const prev=document.getElementById('fimg-prev');
-    prev.src=e.target.result;prev.style.display='block';
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      const MAX=400;
+      let w=img.width,h=img.height;
+      if(w>h&&w>MAX){h=h*MAX/w;w=MAX;}
+      else if(h>MAX){w=w*MAX/h;h=MAX;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      const compressed=canvas.toDataURL('image/jpeg',0.7);
+      document.getElementById('fimg').value=compressed;
+      const prev=document.getElementById('fimg-prev');
+      prev.src=compressed;prev.style.display='block';
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 };
 
 window.saveProduct=async()=>{
+  syncOptGroupsFromDOM();
   const name=document.getElementById('fn').value.trim();
   if(!name){alert('Ürün adı gerekli');return;}
   const catId=document.getElementById('fcat').value;
