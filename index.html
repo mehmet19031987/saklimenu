@@ -466,7 +466,7 @@ function updateBar(){
 }
 
 window.openCartModal = ()=>{
-  document.getElementById('cart-list').innerHTML=cart.filter(i=>i.qty>0).map(item=>`
+  document.getElementById('cart-list').innerHTML=cart.filter(i=>i.qty>0).map((item,idx)=>`
     <div class="ci">
       <div style="flex:1;min-width:0">
         <div class="ci-nm">${item.name} <span style="font-weight:400;color:var(--tm)">× ${item.qty}</span></div>
@@ -474,12 +474,20 @@ window.openCartModal = ()=>{
         ${item.optText?`<span class="ci-opt">${item.optText}</span>`:''}
         ${item.note?`<span class="ci-note">"${item.note}"</span>`:''}
       </div>
-      <div class="ci-pr">₺${item.price*item.qty}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <div class="ci-pr">₺${item.price*item.qty}</div>
+        <button onclick="removeFromCart(${idx})" style="background:var(--rdl);color:var(--rd);border:none;border-radius:6px;padding:3px 8px;font-size:10px;cursor:pointer;font-family:'DM Sans',sans-serif">Sil</button>
+      </div>
     </div>`).join('');
   document.getElementById('cart-total').textContent='₺'+getTotal();
   document.getElementById('cart-modal').classList.add('open');
 };
 
+window.removeFromCart = idx=>{
+  cart.splice(idx,1);
+  updateBar();
+  openCartModal(); // Sepeti yenile
+};
 window.closeCartModal = ()=>{ document.getElementById('cart-modal').classList.remove('open'); };
 window.bgClickCart = e=>{ if(e.target===document.getElementById('cart-modal')) closeCartModal(); };
 
