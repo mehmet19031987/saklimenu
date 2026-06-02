@@ -616,7 +616,11 @@ function renderHesap(){
       </div>
 
       <div class="hd-total"><span>Genel Toplam</span><span>₺${genel.toLocaleString()}</span></div>
-      ${masaOrders.length?`<button class="kapat-btn" onclick="kapatiHesap('${hesapMasa.id}')">✓ Hesabı Kapat & Temizle</button>`:''}
+      ${masaOrders.length?`
+        <div style="display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px">
+          <button class="kapat-btn" style="background:var(--g)" onclick="kapatiHesap('${hesapMasa.id}')">✓ Ödeme Alındı — Hesabı Kapat</button>
+        </div>
+      `:''}
     `;
     return;
   }
@@ -635,6 +639,7 @@ function renderHesap(){
 }
 
 window.renderHesap=renderHesap;
+window.selectMasa=(id,name,type)=>{ hesapMasa={id,name,type}; renderHesap(); };
 window.setHesapDate=d=>{selDate=d;hesapMasa=null;renderHesap();};
 
 window.addKalem=async(masaId,name,price)=>{
