@@ -77,11 +77,27 @@ function renderManuelSiparis() {
 function renderMasaRow() {
   const el = document.getElementById('inline-masa-row');
   if(!el) return;
-  el.innerHTML = MASALAR.map(m=>`
-    <button class="msip-masa-btn${msipMasa?.id===m.id?' sel':''}" style="flex-shrink:0;padding:7px 10px;border-radius:8px;border:.5px solid var(--br2);background:${msipMasa?.id===m.id?'var(--g)':'var(--bg2)'};color:${msipMasa?.id===m.id?'#fff':'var(--tm)'};cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;white-space:nowrap"
-      onclick="msipMasa={id:'${m.id}',name:'${m.name}',type:'${m.type}'};renderMasaRow()">
-      ${m.name}
-    </button>`).join('');
+
+  const groups = [
+    {label:'Bungalovlar', type:'bungalov', grid:'repeat(5,1fr)'},
+    {label:'Localar',     type:'loca',     grid:'repeat(2,1fr)'},
+    {label:'Şezlonglar',  type:'sezlong',  grid:'repeat(2,1fr)'},
+    {label:'Masalar',     type:'masa',     grid:'repeat(2,1fr)'},
+  ];
+
+  el.innerHTML = groups.map(g => {
+    const items = MASALAR.filter(m=>m.type===g.type);
+    return `<div style="margin-bottom:10px">
+      <div style="font-size:10px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">${g.label}</div>
+      <div style="display:grid;grid-template-columns:${g.grid};gap:5px">
+        ${items.map(m=>`
+          <button onclick="msipMasa={id:'${m.id}',name:'${m.name}',type:'${m.type}'};renderMasaRow()"
+            style="padding:8px 4px;border-radius:8px;border:.5px solid ${msipMasa?.id===m.id?'var(--g)':'var(--br2)'};background:${msipMasa?.id===m.id?'var(--g)':'var(--bg2)'};color:${msipMasa?.id===m.id?'#fff':'var(--tm)'};cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;font-weight:500;text-align:center">
+            ${m.name.replace('Bungalov ','B').replace('Loca ','L').replace('Şezlong ','Ş').replace('Masa ','M')}
+          </button>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function renderCatRow() {
