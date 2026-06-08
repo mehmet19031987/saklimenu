@@ -47,7 +47,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t);padding-bott
 /* TABS */
 .stabs{display:flex;gap:6px;padding:10px 10px 4px;overflow-x:auto;scrollbar-width:none}
 .stabs::-webkit-scrollbar{display:none}
-.stab{flex-shrink:0;padding:8px 14px;font-size:12px;border:.5px solid var(--br2);border-radius:8px;cursor:pointer;color:var(--tm);background:var(--bg);font-family:'DM Sans',sans-serif;white-space:nowrap;position:relative;transition:all .2s}
+.stab{flex-shrink:0;padding:9px 14px;font-size:13px;border:.5px solid var(--br2);border-radius:8px;cursor:pointer;color:var(--tm);background:var(--bg);font-family:'DM Sans',sans-serif;white-space:nowrap;position:relative;transition:all .2s}
 .stab.active{background:var(--g);color:#fff;border-color:var(--g);font-weight:500}
 .sdot{position:absolute;top:4px;right:4px;width:7px;height:7px;background:var(--rd);border-radius:50%;display:none}
 .sdot.on{display:block}
@@ -57,17 +57,17 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t);padding-bott
 /* ORDER CARDS */
 .ocard{background:var(--bg);border:.5px solid var(--br);border-radius:13px;padding:12px 14px;margin-bottom:8px}
 .oc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.oc-masa{font-size:14px;font-weight:600;color:var(--t)}
+.oc-masa{font-size:16px;font-weight:600;color:var(--t)}
 .oc-time{font-size:10px;color:var(--th)}
 .oc-badge{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:500;margin-left:5px}
 .oc-badge.loca{background:#E6F1FB;color:#185FA5}
 .oc-badge.sezlong{background:var(--aml);color:var(--amd)}
 .oc-badge.bungalov{background:var(--gl);color:var(--gd)}
 .oc-badge.masa{background:#F3F0FB;color:#5B35A8}
-.oc-items{font-size:11px;color:var(--tm);line-height:1.9;margin-bottom:6px}
+.oc-items{font-size:13px;color:var(--tm);line-height:1.9;margin-bottom:6px}
 .oc-opt{font-size:10px;color:#6B35A8;background:#F0E6FB;padding:2px 6px;border-radius:4px;margin-left:4px}
 .oc-note{font-size:10px;color:var(--am);background:var(--aml);padding:2px 6px;border-radius:4px;margin-left:4px;font-style:italic}
-.oc-total{font-size:13px;font-weight:600;color:var(--g);margin-bottom:8px}
+.oc-total{font-size:15px;font-weight:600;color:var(--g);margin-bottom:8px}
 .sbtns{display:flex;gap:5px}
 .sbtn{flex:1;padding:7px 2px;font-size:11px;border-radius:8px;border:.5px solid var(--br2);background:var(--bg2);color:var(--tm);cursor:pointer;text-align:center;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .2s}
 .sbtn.s1{background:#FFF8E6;color:var(--am);border-color:var(--am);font-weight:500}
@@ -78,7 +78,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t);padding-bott
 .gcard{background:var(--aml);border:.5px solid var(--am);border-radius:13px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
 .gc-l{display:flex;align-items:center;gap:10px}
 .gc-ico{width:36px;height:36px;background:var(--am);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px}
-.gc-masa{font-size:13px;font-weight:500;color:var(--amd)}
+.gc-masa{font-size:14px;font-weight:500;color:var(--amd)}
 .gc-time{font-size:10px;color:var(--am);margin-top:2px}
 .gc-ok{background:var(--am);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
 
@@ -98,8 +98,8 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t);padding-bott
 .hmcard{background:var(--bg);border:.5px solid var(--br);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .2s}
 .hmcard:active{border-color:var(--g)}
 .hm-left{flex:1}
-.hm-name{font-size:14px;font-weight:600;color:var(--t)}
-.hm-cnt{font-size:11px;color:var(--tm);margin-top:2px}
+.hm-name{font-size:15px;font-weight:600;color:var(--t)}
+.hm-cnt{font-size:12px;color:var(--tm);margin-top:2px}
 .hm-tot{font-size:15px;font-weight:600;color:var(--g)}
 .hd-back{display:flex;align-items:center;gap:6px;background:var(--bg);border:.5px solid var(--br2);color:var(--t);font-size:13px;cursor:pointer;padding:8px 14px;font-family:'DM Sans',sans-serif;border-radius:9px;margin-bottom:14px;width:fit-content}
 .hd-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--t);margin-bottom:4px}
@@ -395,7 +395,7 @@ let msipMasa=null, msipSepet=[], msipActiveCat=null;
 
 const pad = n=>String(n).padStart(2,'0');
 const dateStr = d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const today   = ()=>dateStr(new Date());
+const today   = ()=>new Date().toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
 const fmtD    = s=>{if(!s)return '—';const p=s.split('-');return `${p[2]}.${p[1]}.${p[0]}`;}
 const ftime   = ()=>new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'});
 const getLast7= ()=>Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return dateStr(d);});
@@ -753,7 +753,6 @@ function renderHesap(){
     const tarihler=[...new Set(masaOrds.map(o=>o.date))].sort();
 
     // Ürün listesi
-    const itemMap={};
     masaOrds.forEach(o=>{
       if(!o.items)return;
       o.items.forEach(i=>{
@@ -777,11 +776,11 @@ function renderHesap(){
     const sipTot=masaOrds.reduce((s,o)=>s+(Number(o.total)||0),0);
     const ekTot=masaOrds.reduce((s,o)=>s+(Number(o._kalemTotal)||0),0);
     const genelTot=sipTot+ekTot;
-    const itemRows=Object.values(itemMap);
+
     const kalemRows=Object.values(kalemMap);
 
     el.innerHTML=`
-      <button class="hd-back" onclick="selMasa=null;renderHesap()">← Geri</button>
+      <button class="hd-back" onclick="doGeriDon()">← Geri</button>
       <div class="hd-title">${selMasa.name}</div>
       ${tarihler.length>1
         ?`<div style="font-size:11px;color:var(--am);background:var(--aml);padding:7px 10px;border-radius:8px;margin-bottom:12px">⚠️ ${tarihler.length} günden birikmiş hesap (${fmtD(tarihler[0])} — ${fmtD(tarihler[tarihler.length-1])})</div>`
@@ -980,11 +979,11 @@ window.doUrunImg=(id,input)=>{
     const img=new Image();
     img.onload=async()=>{
       const canvas=document.createElement('canvas');
-      const MAX=400;let w=img.width,h=img.height;
+      const MAX=250;let w=img.width,h=img.height;
       if(w>h&&w>MAX){h=Math.round(h*MAX/w);w=MAX;}else if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
       canvas.width=w;canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
-      const comp=canvas.toDataURL('image/jpeg',0.75);
+      const comp=canvas.toDataURL('image/jpeg',0.55);
       for(const c of menuData){const it=c.items?.find(i=>i.id==id);if(it){it.img=comp;break;}}
       await set(ref(db,'menu'),menuData);
     };
@@ -1066,11 +1065,11 @@ window.doHandleImg=input=>{
     const img=new Image();
     img.onload=()=>{
       const canvas=document.createElement('canvas');
-      const MAX=400;let w=img.width,h=img.height;
+      const MAX=250;let w=img.width,h=img.height;
       if(w>h&&w>MAX){h=Math.round(h*MAX/w);w=MAX;}else if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
       canvas.width=w;canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
-      const comp=canvas.toDataURL('image/jpeg',0.75);
+      const comp=canvas.toDataURL('image/jpeg',0.55);
       document.getElementById('fimg').value=comp;
       const prev=document.getElementById('fimg-prev');
       prev.src=comp;prev.style.display='block';
