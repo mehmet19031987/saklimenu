@@ -204,7 +204,8 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t);padding-bott
 .msip-cat-row::-webkit-scrollbar{display:none}
 .msip-cat-btn{flex-shrink:0;padding:5px 12px;border-radius:20px;border:.5px solid var(--br2);background:var(--bg2);color:var(--tm);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .2s}
 .msip-cat-btn.active{background:var(--g);color:#fff;border-color:var(--g)}
-.msip-urun{display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:10px;padding:8px 10px;margin-bottom:5px}
+.msip-urun{display:flex;align-items:center;gap:10px;background:var(--bg);border-bottom:.5px solid var(--br);padding:9px 4px;margin-bottom:0}
+.msip-urun:last-child{border-bottom:none}
 .msip-urun-img{width:38px;height:38px;border-radius:7px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;border:.5px solid var(--br)}
 .msip-urun-img img{width:100%;height:100%;object-fit:cover}
 .msip-urun-body{flex:1;min-width:0}
@@ -655,7 +656,7 @@ function renderMsip(){
   el.innerHTML=`
     ${masaHtml}
     <div style="margin-top:8px"><div class="msip-lbl">Kategori</div><div class="msip-cat-row">${catHtml}</div></div>
-    <div style="margin-top:8px"><div class="msip-lbl" style="margin-bottom:6px">Ürünler</div>${urunHtml||'<div style="font-size:12px;color:var(--th);padding:8px 0">Kategori seçin</div>'}</div>
+    <div style="margin-top:8px"><div class="msip-lbl" style="margin-bottom:6px">Ürünler</div><div style="border:.5px solid var(--br);border-radius:10px;overflow:hidden">${urunHtml||'<div style="font-size:12px;color:var(--th);padding:8px 0">Kategori seçin</div>'}</div></div>
     <div style="margin-top:8px"><div class="msip-lbl" style="margin-bottom:6px">Ek Kalemler</div><div class="msip-ek-grid">${ekHtml}</div></div>
     <div style="margin-top:10px"><div class="msip-lbl" style="margin-bottom:6px">Sepet</div>
       <div class="msip-sepet">${sepetHtml}</div>
@@ -723,175 +724,241 @@ function renderQR(){
   },200);
 }
 
-// ─── HESAP ────────────────────────────────────────────
-window.switchHTab=tab=>{
-  activeHTab=tab;
-  ['hesap','rapor'].forEach(t=>{
-    document.getElementById('stab-'+t).classList.toggle('active',t===tab);
-    document.getElementById('sc-'+t).classList.toggle('active',t===tab);
+// ─── HESAP ─────────────────────────────────────────
+window.switchHTab = tab => {
+  activeHTab = tab;
+  ['hesap','rapor'].forEach(t => {
+    document.getElementById('stab-'+t)?.classList.toggle('active', t===tab);
+    document.getElementById('sc-'+t)?.classList.toggle('active', t===tab);
   });
-  if(tab==='hesap'){selMasa=null;renderHesap();}
-  if(tab==='rapor')renderRapor();
+  if(tab==='hesap') { selMasa=null; renderHesap(); }
+  if(tab==='rapor') { if(!selDate) selDate=today(); renderRapor(); }
 };
 
-function dateSelector(fn){
-  const days=getLast7();
-  if(!selDate)selDate=days[0];
-  return `<div class="date-row">${days.map(d=>`
-    <button class="dpill${d===selDate?' active':''}" data-d="${d}" onclick="datePillClick(this,'${fn}')">${d===today()?'Bugün':fmtD(d)}</button>
-  `).join('')}</div>`;
+function getLast7() {
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date();
+    d.setDate(d.getDate()-i);
+    return d.toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'});
+  });
 }
-window.datePillClick=(btn,fn)=>{ window[fn](btn.dataset.d); };
 
-function renderHesap(){
-  const el=document.getElementById('sc-hesap');
-  if(!el)return;
+function renderHesap() {
+  const el = document.getElementById('sc-hesap');
+  if(!el) return;
 
-  if(selMasa){
-    // Kapanmamış TÜM siparişler - günler birikir
-    const masaOrds=Object.values(orders).filter(o=>o.masaId===selMasa.id&&o.status!=='kapali');
-    const tarihler=[...new Set(masaOrds.map(o=>o.date))].sort();
+  // DETAY SAYFASI
+  if(selMasa) {
+    const masaOrds = Object.values(orders).filter(o =>
+      o.masaId === selMasa.id && o.status !== 'kapali'
+    );
+    const tarihler = [...new Set(masaOrds.map(o=>o.date))].sort();
 
-    // Ürün listesi
-    masaOrds.forEach(o=>{
-      if(!o.items)return;
-      o.items.forEach(i=>{
-        const key=i.name+(i.options?'|'+i.options:'');
-        if(!itemMap[key])itemMap[key]={name:i.name,options:i.options||'',qty:0,total:0,orderId:o.id};
-        itemMap[key].qty+=Number(i.qty)||1;
-        itemMap[key].total+=(Number(i.price)||0)*(Number(i.qty)||1);
+    // Sipariş ürünleri
+    const itemRows = [];
+    masaOrds.forEach(o => {
+      if(!o.items) return;
+      o.items.forEach(i => {
+        itemRows.push({
+          orderId: o.id,
+          name:    i.name,
+          options: i.options||'',
+          qty:     Number(i.qty)||1,
+          price:   Number(i.price)||0,
+          total:   (Number(i.price)||0)*(Number(i.qty)||1),
+          time:    o.time||'',
+          date:    o.date||''
+        });
       });
     });
 
     // Ek kalemler
-    const kalemMap={};
-    masaOrds.forEach(o=>{
-      if(!o._kalemler)return;
-      o._kalemler.forEach((k,ki)=>{
-        const key=`${o.id}_${ki}`;
-        kalemMap[key]={name:k.name,price:k.price,qty:k.qty||1,total:k.price*(k.qty||1),orderId:o.id,kalemIdx:ki};
+    const kalemRows = [];
+    masaOrds.forEach(o => {
+      if(!o._kalemler) return;
+      o._kalemler.forEach((k,ki) => {
+        kalemRows.push({
+          orderId:  o.id,
+          kalemIdx: ki,
+          name:     k.name,
+          price:    k.price,
+          qty:      k.qty||1,
+          total:    k.price*(k.qty||1)
+        });
       });
     });
 
-    const sipTot=masaOrds.reduce((s,o)=>s+(Number(o.total)||0),0);
-    const ekTot=masaOrds.reduce((s,o)=>s+(Number(o._kalemTotal)||0),0);
-    const genelTot=sipTot+ekTot;
+    const sipTot   = masaOrds.reduce((s,o)=>s+(Number(o.total)||0), 0);
+    const ekTot    = masaOrds.reduce((s,o)=>s+(Number(o._kalemTotal)||0), 0);
+    const genelTot = sipTot + ekTot;
 
-    const kalemRows=Object.values(kalemMap);
+    let html = '';
+    html += `<button class="hd-back" id="btn-geri">← Geri</button>`;
+    html += `<div class="hd-title">${selMasa.name}</div>`;
 
-    el.innerHTML=`
-      <button class="hd-back" onclick="doGeriDon()">← Geri</button>
-      <div class="hd-title">${selMasa.name}</div>
-      ${tarihler.length>1
-        ?`<div style="font-size:11px;color:var(--am);background:var(--aml);padding:7px 10px;border-radius:8px;margin-bottom:12px">⚠️ ${tarihler.length} günden birikmiş hesap (${fmtD(tarihler[0])} — ${fmtD(tarihler[tarihler.length-1])})</div>`
-        :`<div class="hd-sub">${tarihler[0]?fmtD(tarihler[0]):fmtD(today())}</div>`}
+    if(tarihler.length > 1) {
+      html += `<div style="font-size:11px;color:var(--am);background:var(--aml);padding:7px 10px;border-radius:8px;margin-bottom:12px">
+        ⚠️ ${tarihler.length} günden birikmiş hesap (${fmtD(tarihler[0])} — ${fmtD(tarihler[tarihler.length-1])})
+      </div>`;
+    } else {
+      html += `<div class="hd-sub">${tarihler[0] ? fmtD(tarihler[0]) : fmtD(today())}</div>`;
+    }
 
-      <div class="hd-sec">Sipariş Detayı</div>
-      ${itemRows.length?itemRows.map(r=>`
-        <div class="hd-row">
-          <div class="hd-rn">
-            ${r.name}${r.options?` <span style="font-size:10px;color:#6B35A8">(${r.options})</span>`:''} × ${r.qty}
+    html += `<div class="hd-sec">Sipariş Detayı</div>`;
+    if(itemRows.length) {
+      html += `<div style="border:.5px solid var(--br);border-radius:10px;overflow:hidden;margin-bottom:8px">`;
+      itemRows.forEach((r,ri) => {
+        html += `<div class="hd-row" style="padding:10px 12px;${ri<itemRows.length-1?'border-bottom:.5px solid var(--br)':''}">
+          <div class="hd-rn" style="flex:1">
+            <div style="font-weight:500">${r.name}${r.options?` <span style="font-size:10px;color:#6B35A8">(${r.options})</span>`:''} × ${r.qty}</div>
+            <div style="font-size:10px;color:var(--th);margin-top:2px">${r.date} ${r.time}</div>
           </div>
-          <span class="hd-rp">₺${r.total.toLocaleString('tr-TR')}</span>
-          <button class="hd-sil" data-orderid="${r.orderId}" data-itemname="${r.name.replace(/'/g,'')}" onclick="silSiparisItem(this)">Sil</button>
-        </div>`).join('')
-        :'<div style="font-size:12px;color:var(--th);padding:8px 0">Sipariş yok</div>'}
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+            <span class="hd-rp">₺${r.total.toLocaleString('tr-TR')}</span>
+            <button class="hd-sil" data-orderid="${r.orderId}" data-itemname="${r.name.replace(/"/g,'')}" onclick="window._silSip(this)">Sil</button>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    } else {
+      html += `<div style="font-size:13px;color:var(--th);padding:8px 0;margin-bottom:8px">Sipariş yok</div>`;
+    }
 
-      ${kalemRows.length?`
-        <div class="hd-sec">Ek Kalemler</div>
-        ${kalemRows.map(r=>`
-          <div class="hd-row">
-            <span class="hd-rn" style="color:var(--amd)">${r.name} × ${r.qty}</span>
+    if(kalemRows.length) {
+      html += `<div class="hd-sec">Ek Kalemler</div>`;
+      html += `<div style="border:.5px solid var(--br);border-radius:10px;overflow:hidden;margin-bottom:8px">`;
+      kalemRows.forEach((r,ri) => {
+        html += `<div class="hd-row" style="padding:10px 12px;${ri<kalemRows.length-1?'border-bottom:.5px solid var(--br)':''}">
+          <span class="hd-rn" style="color:var(--amd)">${r.name} × ${r.qty}</span>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
             <span class="hd-rp" style="color:var(--amd)">₺${r.total.toLocaleString('tr-TR')}</span>
-            <button class="hd-sil" data-orderid="${r.orderId}" data-kalemidx="${r.kalemIdx}" onclick="silKalemItem(this)">Sil</button>
-          </div>`).join('')}`:''}
+            <button class="hd-sil" data-orderid="${r.orderId}" data-kalemidx="${r.kalemIdx}" onclick="window._silKalem(this)">Sil</button>
+          </div>
+        </div>`;
+      });
+      html += `</div>`;
+    }
 
-      <div class="hd-sec">Kalem Ekle</div>
-      <div class="kalem-btns">
-        ${KALEMLER.map(k=>`<button class="kalem-btn" data-masaid="${selMasa.id}" data-name="${k.name}" data-price="${k.price}" onclick="doAddKalemBtn(this)">${k.emoji} ${k.name}<br><small>₺${k.price.toLocaleString('tr-TR')}</small></button>`).join('')}
-      </div>
+    html += `<div class="hd-sec">Kalem Ekle</div>`;
+    html += `<div class="kalem-btns">`;
+    KALEMLER.forEach(k => {
+      html += `<button class="kalem-btn" data-masaid="${selMasa.id}" data-name="${k.name}" data-price="${k.price}" onclick="window._addKalem(this)">
+        ${k.emoji} ${k.name}<br><small>₺${k.price.toLocaleString('tr-TR')}</small>
+      </button>`;
+    });
+    html += `</div>`;
 
-      <div class="hd-total-box">
-        <span class="hd-total-lbl">Genel Toplam</span>
-        <span class="hd-total-val">₺${genelTot.toLocaleString('tr-TR')}</span>
-      </div>
-      ${masaOrds.length?`<button class="odeme-btn" data-masaid="${selMasa.id}" onclick="doOdemeKapatBtn(this)">✓ Ödeme Alındı — Hesabı Kapat</button>`:''}
-    `;
+    html += `<div class="hd-total-box">
+      <span class="hd-total-lbl">Genel Toplam</span>
+      <span class="hd-total-val">₺${genelTot.toLocaleString('tr-TR')}</span>
+    </div>`;
+
+    if(masaOrds.length) {
+      html += `<button class="odeme-btn" data-masaid="${selMasa.id}" onclick="window._kapat(this)">
+        ✓ Ödeme Alındı — Hesabı Kapat
+      </button>`;
+    }
+
+    el.innerHTML = html;
+
+    // Event listener ekle - inline onclick yerine
+    document.getElementById('btn-geri').addEventListener('click', () => {
+      selMasa = null;
+      renderHesap();
+    });
+
     return;
   }
 
-  // Masa listesi - kapanmamış TÜM siparişler
-  const aktif=MASALAR.filter(m=>Object.values(orders).some(o=>o.masaId===m.id&&o.status!=='kapali'));
-  el.innerHTML=dateSelector('doSetHesapDate')+(aktif.length?
-    `<div style="font-size:11px;color:var(--th);margin:6px 0 10px">Açık hesap için masa seçin</div>`+
-    aktif.map(m=>{
-      const mOrds=Object.values(orders).filter(o=>o.masaId===m.id&&o.status!=='kapali');
-      const sip=mOrds.reduce((s,o)=>s+(Number(o.total)||0),0);
-      const ek=mOrds.reduce((s,o)=>s+(Number(o._kalemTotal)||0),0);
-      const tarihler=[...new Set(mOrds.map(o=>o.date))];
-      return `<div class="hmcard" data-masaid="${m.id}" onclick="hmCardClick(this)">
-        <div class="hm-left">
+  // MASA LİSTESİ
+  const aktif = MASALAR.filter(m =>
+    Object.values(orders).some(o => o.masaId===m.id && o.status!=='kapali')
+  );
+
+  let html = '';
+  const days = getLast7();
+  if(!selDate) selDate = days[0];
+  html += `<div class="date-row">`;
+  days.forEach(d => {
+    html += `<button class="dpill${d===selDate?' active':''}" data-d="${d}" onclick="window._setDate(this)">${d===today()?'Bugün':fmtD(d)}</button>`;
+  });
+  html += `</div>`;
+
+  if(aktif.length) {
+    html += `<div style="font-size:12px;color:var(--th);margin:6px 0 10px">Açık hesap için masa seçin</div>`;
+    aktif.forEach(m => {
+      const mOrds = Object.values(orders).filter(o => o.masaId===m.id && o.status!=='kapali');
+      const sip   = mOrds.reduce((s,o)=>s+(Number(o.total)||0), 0);
+      const ek    = mOrds.reduce((s,o)=>s+(Number(o._kalemTotal)||0), 0);
+      const tarihler = [...new Set(mOrds.map(o=>o.date))];
+      html += `<div class="hmcard" data-masaid="${m.id}" onclick="window._secMasa(this)">
+        <div>
           <div class="hm-name">${m.name}</div>
-          <div class="hm-cnt">${mOrds.length} sipariş${tarihler.length>1?` · ${tarihler.length} gün birikmiş`:''}</div>
+          <div class="hm-cnt">${mOrds.length} sipariş${tarihler.length>1?' · '+tarihler.length+' gün birikmiş':''}</div>
         </div>
         <div class="hm-tot">₺${(sip+ek).toLocaleString('tr-TR')}</div>
       </div>`;
-    }).join(''):
-    `<div class="empty-st"><div class="empty-ico">💳</div><div class="empty-txt">Açık hesap yok</div></div>`
-  );
+    });
+  } else {
+    html += `<div class="empty-st"><div class="empty-ico">💳</div><div class="empty-txt">Açık hesap yok</div></div>`;
+  }
+
+  el.innerHTML = html;
 }
 
-// Data attribute ile güvenli tıklama
-window.hmCardClick=el=>{
-  const id=el.getAttribute('data-masaid');
-  const m=MASALAR.find(x=>x.id===id);
-  if(m){selMasa=m;renderHesap();}
+// Hesap window fonksiyonları
+window._secMasa = el => {
+  const id = el.getAttribute('data-masaid');
+  const m  = MASALAR.find(x => x.id===id);
+  if(m) { selMasa=m; renderHesap(); }
 };
-window.doSetHesapDate=d=>{selDate=d;selMasa=null;renderHesap();};
-
-window.silSiparisItem=async btn=>{
-  if(!confirm('Bu sipariş kalemini silmek istiyor musunuz?'))return;
-  const orderId=btn.getAttribute('data-orderid');
-  const itemName=btn.getAttribute('data-itemname');
-  const ord=orders[orderId];if(!ord)return;
-  // O ürünü items'dan çıkar
-  const newItems=ord.items.filter(i=>i.name!==itemName);
-  const newTotal=newItems.reduce((s,i)=>s+(Number(i.price)||0)*(Number(i.qty)||1),0);
-  if(newItems.length===0){
+window._setDate = el => {
+  selDate = el.getAttribute('data-d');
+  selMasa = null;
+  renderHesap();
+};
+window._silSip = async btn => {
+  if(!confirm('Bu sipariş kalemini silmek istiyor musunuz?')) return;
+  const orderId  = btn.getAttribute('data-orderid');
+  const itemName = btn.getAttribute('data-itemname');
+  const ord = orders[orderId];
+  if(!ord) return;
+  const newItems = (ord.items||[]).filter(i => i.name !== itemName);
+  const newTotal = newItems.reduce((s,i)=>s+(Number(i.price)||0)*(Number(i.qty)||1), 0);
+  if(newItems.length===0) {
     await remove(ref(db,'orders/'+orderId));
   } else {
-    await update(ref(db,'orders/'+orderId),{items:newItems,total:newTotal});
+    await update(ref(db,'orders/'+orderId), {items:newItems, total:newTotal});
   }
 };
-
-window.silKalemItem=async btn=>{
-  if(!confirm('Bu kalemi silmek istiyor musunuz?'))return;
-  const orderId=btn.getAttribute('data-orderid');
-  const kalemIdx=parseInt(btn.getAttribute('data-kalemidx'));
-  const ord=orders[orderId];if(!ord||!ord._kalemler)return;
-  const newKalemler=ord._kalemler.filter((_,i)=>i!==kalemIdx);
-  const newKalemTotal=newKalemler.reduce((s,k)=>s+k.price*(k.qty||1),0);
-  await update(ref(db,'orders/'+orderId),{_kalemler:newKalemler,_kalemTotal:newKalemTotal});
+window._silKalem = async btn => {
+  if(!confirm('Bu kalemi silmek istiyor musunuz?')) return;
+  const orderId  = btn.getAttribute('data-orderid');
+  const kalemIdx = parseInt(btn.getAttribute('data-kalemidx'));
+  const ord = orders[orderId];
+  if(!ord || !ord._kalemler) return;
+  const newKalemler    = ord._kalemler.filter((_,i)=>i!==kalemIdx);
+  const newKalemTotal  = newKalemler.reduce((s,k)=>s+k.price*(k.qty||1), 0);
+  await update(ref(db,'orders/'+orderId), {_kalemler:newKalemler, _kalemTotal:newKalemTotal});
 };
-
-window.doAddKalemBtn=async btn=>{
-  const masaId=btn.getAttribute('data-masaid');
-  const name=btn.getAttribute('data-name');
-  const price=parseInt(btn.getAttribute('data-price'));
-  const mOrds=Object.values(orders).filter(o=>o.masaId===masaId&&o.status!=='kapali');
-  if(!mOrds.length){alert('Aktif sipariş yok');return;}
-  const ord=mOrds[0];
-  const kalemler=[...(ord._kalemler||[]),{name,price,qty:1}];
-  const kalemTotal=kalemler.reduce((s,k)=>s+k.price*(k.qty||1),0);
-  await update(ref(db,'orders/'+ord.id),{_kalemler:kalemler,_kalemTotal:kalemTotal});
+window._addKalem = async btn => {
+  const masaId = btn.getAttribute('data-masaid');
+  const name   = btn.getAttribute('data-name');
+  const price  = parseInt(btn.getAttribute('data-price'));
+  const mOrds  = Object.values(orders).filter(o=>o.masaId===masaId && o.status!=='kapali');
+  if(!mOrds.length) { alert('Aktif sipariş yok'); return; }
+  const ord        = mOrds[0];
+  const kalemler   = [...(ord._kalemler||[]), {name, price, qty:1}];
+  const kalemTotal = kalemler.reduce((s,k)=>s+k.price*(k.qty||1), 0);
+  await update(ref(db,'orders/'+ord.id), {_kalemler:kalemler, _kalemTotal:kalemTotal});
 };
-
-window.doOdemeKapatBtn=async btn=>{
-  if(!confirm('Ödeme alındı ve hesap kapatılsın mı?'))return;
-  const masaId=btn.getAttribute('data-masaid');
-  const mOrds=Object.values(orders).filter(o=>o.masaId===masaId&&o.status!=='kapali');
-  for(const o of mOrds)await update(ref(db,'orders/'+o.id),{status:'kapali'});
-  selMasa=null;renderHesap();
+window._kapat = async btn => {
+  if(!confirm('Ödeme alındı ve hesap kapatılsın mı?')) return;
+  const masaId = btn.getAttribute('data-masaid');
+  const mOrds  = Object.values(orders).filter(o=>o.masaId===masaId && o.status!=='kapali');
+  for(const o of mOrds) await update(ref(db,'orders/'+o.id), {status:'kapali'});
+  selMasa = null;
+  renderHesap();
 };
 
 // ─── RAPOR ────────────────────────────────────────────
