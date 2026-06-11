@@ -155,7 +155,7 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t)}
     <div class="cbadge" id="cbadge">0</div>
     <div class="clbl" id="clbl">Sepetim</div>
     <div class="ctot" id="ctot">₺0</div>
-    <button class="csee" onclick="openCartModal()">Görüntüle</button>
+    <button class="csee" onclick="openCartModal()">Siparişi Görüntüle</button>
   </div>
   <button class="garson-btn" id="gbtn" onclick="callGarson()">🔔 Garson Çağır</button>
 </div>
@@ -295,6 +295,8 @@ if(urlParams.get('masa')) {
 } else {
   document.getElementById('mh-masa').style.display = 'none';
   document.getElementById('cart-fixed').style.display = 'none';
+  // Masa yoksa popup gösterme
+  document.getElementById('karsılama-ov').style.display = 'none';
 }
 renderCats();
 renderMenu();

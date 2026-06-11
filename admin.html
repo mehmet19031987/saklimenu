@@ -202,7 +202,8 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t);padding-bott
   <div class="tb-right">
     <span class="nb" id="nb"></span>
     <div class="tb-clock" id="tb-clock"></div>
-    <button class="tb-btn" id="tb-add" onclick="openAddModal(null)">+ Ekle</button>
+    <button class="tb-btn" id="tb-add" onclick="openAddModal(null)">+ Ürün</button>
+    <button class="tb-btn" id="tb-kat" onclick="openKatModal()" style="display:none;background:rgba(159,225,203,.15);color:#9FE1CB;border-color:rgba(159,225,203,.3)">+ Kategori</button>
   </div>
 </div>
 
@@ -248,6 +249,19 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t);padding-bott
     <button class="lock-btn" onclick="doCheckPin()">Giriş Yap</button>
     <div class="lock-err" id="lock-err">Hatalı şifre!</div>
     <button class="lock-cancel" onclick="doCancelLock()">← Geri dön</button>
+  </div>
+</div>
+
+<!-- KATEGORİ MODAL -->
+<div class="ov" id="katov" onclick="if(event.target===this)closeKatov()">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="sttl">Kategori Ekle</div>
+    <div class="sbd">
+      <div class="fg"><label class="fl">Kategori Adı *</label><input class="fi" id="kat-ad" type="text" placeholder="örn. Soğuk İçecekler"></div>
+      <div class="fg"><label class="fl">Emoji</label><input class="fi" id="kat-emoji" type="text" placeholder="🥤" maxlength="4"></div>
+      <button class="save-btn" onclick="doSaveKat()">Kaydet</button>
+    </div>
   </div>
 </div>
 
@@ -435,6 +449,7 @@ window.gotoPage = p => {
   const logos={siparis:'📋 Siparişler',qr:'📱 QR Kodlar',urun:'⚙️ Ürünler',hesap:'💳 Hesap & Rapor'};
   document.getElementById('tb-logo').textContent=logos[p];
   document.getElementById('tb-add').style.display=p==='urun'?'block':'none';
+  document.getElementById('tb-kat').style.display=p==='urun'?'block':'none';
   if(p==='qr') renderQR();
   if(p==='urun') renderUrun();
   if(p==='hesap') { if(!selDate) selDate=today(); hesapMasa=null; renderHesap(); }
@@ -906,7 +921,10 @@ function renderUrun() {
     <div>
       <div class="ucat-hd">
         <div class="ucat-nm">${cat.emoji} ${cat.name} (${(cat.items||[]).length})</div>
-        <button class="ucat-add" onclick="openAddModal('${cat.id}')">+ Ekle</button>
+        <div style="display:flex;gap:5px">
+          <button class="ucat-add" onclick="openAddModal('${cat.id}')">+ Ürün</button>
+          <button style="font-size:10px;color:var(--rd);background:var(--rdl);border:.5px solid var(--rd);border-radius:6px;padding:3px 9px;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="doDelKat('${cat.id}')">Sil</button>
+        </div>
       </div>
       ${(cat.items||[]).map((item,idx)=>`
         <div class="ucard" draggable="true" id="uc-${cat.id}-${idx}"
@@ -1049,6 +1067,33 @@ window.doHandleImg=input=>{
   };
   reader.readAsDataURL(file);
 };
+window.openKatModal = () => {
+  document.getElementById('kat-ad').value='';
+  document.getElementById('kat-emoji').value='';
+  document.getElementById('katov').classList.add('open');
+};
+window.closeKatov = () => document.getElementById('katov').classList.remove('open');
+window.doSaveKat = async () => {
+  const ad = document.getElementById('kat-ad').value.trim();
+  if(!ad) { alert('Kategori adı gerekli'); return; }
+  const emoji = document.getElementById('kat-emoji').value || '🍽️';
+  const id = 'cat-' + Date.now();
+  menuData.push({id, name:ad, emoji, items:[]});
+  await set(ref(db,'menu'), menuData);
+  document.getElementById('katov').classList.remove('open');
+};
+window.doDelKat = async id => {
+  const cat = menuData.find(c=>c.id===id);
+  if(!cat) return;
+  if((cat.items||[]).length > 0) {
+    if(!confirm(`"${cat.name}" kategorisinde ${cat.items.length} ürün var. Hepsi silinecek. Emin misin?`)) return;
+  } else {
+    if(!confirm(`"${cat.name}" kategorisini silmek istiyor musunuz?`)) return;
+  }
+  menuData = menuData.filter(c=>c.id!==id);
+  await set(ref(db,'menu'), menuData);
+};
+
 window.doSaveProduct=async()=>{
   syncOG();
   const name=document.getElementById('fn').value.trim();
