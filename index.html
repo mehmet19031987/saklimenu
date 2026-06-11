@@ -131,6 +131,21 @@ body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t)}
 </head>
 <body>
 
+<!-- KARŞILAMA POPUP -->
+<div id="karsılama-ov" style="position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:28px 24px;max-width:320px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="font-size:52px;margin-bottom:14px">😊</div>
+    <div style="font-family:'Playfair Display',serif;font-size:20px;color:#04342C;margin-bottom:10px">Saklıdoğa'ya Hoş Geldiniz!</div>
+    <div style="font-size:14px;color:#666;line-height:1.7;margin-bottom:22px">
+      Birbirinden lezzetli ürünleri sepete ekleyip sipariş verebilirsiniz.
+    </div>
+    <button onclick="document.getElementById('karsılama-ov').style.display='none'"
+      style="width:100%;background:#04342C;color:#9FE1CB;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:.5px">
+      Devam Et →
+    </button>
+  </div>
+</div>
+
 <div id="page-menu">
   <div class="mhdr">
     <div class="mh-top">
