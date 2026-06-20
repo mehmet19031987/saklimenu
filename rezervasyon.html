@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Saklıdoğa — Rezervasyon</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --g:#1D9E75;--gl:#E1F5EE;--gd:#0F6E56;--gddd:#04342C;
+  --am:#BA7517;--aml:#FAEEDA;--amd:#854F0B;
+  --rd:#E24B4A;--rdl:#FCEBEB;
+  --pu:#7C4DBE;--pul:#F0E6FB;--pud:#5B35A8;
+  --bg:#fff;--bg2:#f7f7f5;
+  --t:#1a1a1a;--tm:#666;--th:#aaa;
+  --br:rgba(0,0,0,0.08);--br2:rgba(0,0,0,0.16)
+}
+html,body{min-height:100%;background:var(--bg2)}
+body{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--t);padding-bottom:8px}
+
+.topbar{background:var(--gddd);padding:12px 14px;position:sticky;top:0;z-index:50}
+.tb-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.tb-logo{font-family:'Playfair Display',serif;font-size:17px;color:#9FE1CB}
+.tbtn{background:#9FE1CB;color:#04342C;border:none;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif}
+.nav-row{display:flex;align-items:center;justify-content:space-between}
+.nav-btn{background:rgba(159,225,203,.15);border:.5px solid rgba(159,225,203,.3);color:#9FE1CB;border-radius:7px;padding:5px 14px;font-size:16px;cursor:pointer;line-height:1}
+.nav-ttl{font-size:13px;font-weight:500;color:#9FE1CB}
+
+/* ANA SEKMELER */
+.main-tabs{display:flex;gap:6px;padding:8px 10px 0;background:var(--gddd)}
+.mtab{flex:1;padding:8px 4px;font-size:11px;text-align:center;border-radius:8px 8px 0 0;cursor:pointer;color:rgba(159,225,203,.6);background:rgba(159,225,203,.08);font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s}
+.mtab.active{background:var(--bg2);color:var(--gddd);font-weight:600}
+
+.page{display:none}
+.page.active{display:block}
+
+.leg-row{display:flex;gap:5px;padding:8px 10px 4px;overflow-x:auto;scrollbar-width:none;background:var(--bg2)}
+.leg-row::-webkit-scrollbar{display:none}
+.leg{flex-shrink:0;font-size:10px;font-weight:500;padding:3px 9px;border-radius:5px}
+.c-begonvil{background:#FFD6E7;color:#8B1A4A}
+.c-lavanta{background:#E8D5FF;color:#5B35A8}
+.c-ortanca{background:#D5F0FF;color:#1A6B8A}
+.c-karanfil{background:#FFE8D5;color:#8A3A1A}
+.c-gunes{background:#FFF5D5;color:#8A6A1A}
+
+.tkv-scroll{overflow-x:auto;padding:6px 8px 10px;background:var(--bg2)}
+.tkv-grid{display:grid;gap:3px}
+.th{text-align:center;padding:6px 2px;border-radius:6px;background:var(--bg)}
+.th .gno{font-size:13px;font-weight:500;display:block;color:var(--t)}
+.th .gad{font-size:9px;color:var(--th)}
+.th.bugun .gno{color:var(--g);font-weight:700}
+.th.bugun .gad{color:var(--g)}
+.oda-lbl{font-size:10px;font-weight:500;color:var(--tm);display:flex;align-items:center;padding:2px 5px;min-height:90px;border-radius:6px;background:var(--bg);line-height:1.3}
+.cell{min-height:90px;border-radius:6px;background:var(--bg);border:.5px solid var(--br);cursor:pointer;position:relative;overflow:hidden;transition:border-color .15s}
+.cell:hover{border-color:var(--br2)}
+.cell.bugun-col{border:.5px solid var(--g)}
+.cell.filled{border:.5px solid transparent}
+.rez-bl{position:absolute;inset:2px;border-radius:4px;display:flex;flex-direction:column;justify-content:center;padding:3px 5px;overflow:hidden}
+.rez-nm{font-size:9px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rez-st{font-size:8px;opacity:.75;margin-top:1px;white-space:nowrap;overflow:hidden}
+
+/* BEKLEME LİSTESİ ROZETİ */
+.yedek-badge{position:absolute;top:2px;right:2px;background:var(--pu);color:#fff;font-size:7px;padding:1px 4px;border-radius:4px;font-weight:600;z-index:2}
+
+.loading{position:fixed;inset:0;background:var(--gddd);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:999}
+.loading-logo{font-family:'Playfair Display',serif;font-size:26px;color:#9FE1CB}
+.spinner{width:28px;height:28px;border:2px solid rgba(159,225,203,.2);border-top-color:#9FE1CB;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.open{opacity:1;pointer-events:all}
+.sheet{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.ov.open .sheet{transform:translateY(0)}
+.shandle{width:36px;height:4px;background:var(--br2);border-radius:2px;margin:13px auto 14px}
+.sttl{font-family:'Playfair Display',serif;font-size:18px;padding:0 16px 3px;color:var(--t)}
+.ssub{font-size:11px;color:var(--tm);padding:0 16px 13px}
+.sbd{padding:0 16px 28px;display:flex;flex-direction:column;gap:11px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fl{font-size:11px;color:var(--tm);font-weight:500}
+.fi{padding:9px 11px;border:.5px solid var(--br2);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t);width:100%}
+.fi:focus{outline:none;border-color:var(--g)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mbtn{border:none;border-radius:11px;padding:12px;font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%}
+.mbtn.gr{background:var(--g);color:#fff}
+.mbtn.gy{background:var(--bg2);color:var(--tm);border:.5px solid var(--br2)}
+.mbtn.rd{background:var(--rdl);color:var(--rd);border:.5px solid var(--rd)}
+.mbtn.pu{background:var(--pul);color:var(--pud);border:.5px solid var(--pu)}
+
+.sec-lbl{font-size:11px;font-weight:500;color:var(--tm);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+.det-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:.5px solid var(--br);font-size:13px}
+.det-lbl{color:var(--tm)}
+.det-val{font-weight:500;color:var(--t)}
+
+.dur3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.dur-btn{padding:9px 4px;border-radius:8px;border:.5px solid var(--br2);background:var(--bg2);color:var(--tm);cursor:pointer;text-align:center;font-size:10px;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s}
+.dur-btn.ak-dolu{background:var(--rdl);color:var(--rd);border-color:var(--rd)}
+.dur-btn.ak-kapora{background:var(--aml);color:var(--amd);border-color:var(--am)}
+.dur-btn.ak-tam{background:var(--gl);color:var(--gd);border-color:var(--g)}
+
+/* ÜCRET KUTUSU */
+.ucret-box{background:var(--gddd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.ucret-row{display:flex;justify-content:space-between;align-items:center}
+.ucret-lbl{font-size:12px;color:rgba(159,225,203,.7)}
+.ucret-val{font-size:14px;font-weight:500;color:#9FE1CB}
+.ucret-kalan{font-size:18px;font-weight:600;color:#9FE1CB}
+.ucret-kalan.sifir{color:#5DCAA5}
+.ucret-divider{height:.5px;background:rgba(159,225,203,.2)}
+
+.odeme-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:.5px solid var(--br)}
+.odeme-item-lbl{font-size:12px;color:var(--t)}
+.odeme-item-dt{font-size:10px;color:var(--th);margin-top:1px}
+.odeme-item-val{font-size:13px;font-weight:500;color:var(--g)}
+.odeme-sil{background:none;border:none;color:var(--th);cursor:pointer;font-size:13px;padding:2px 5px}
+
+.act2{display:flex;gap:8px}
+
+/* BEKLEME LİSTESİ KARTLARI */
+.yedek-card{background:var(--pul);border:.5px solid var(--pu);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer}
+.yedek-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.yedek-ad{font-size:14px;font-weight:600;color:var(--pud)}
+.yedek-tarih{font-size:11px;color:var(--pud);opacity:.8}
+.yedek-oda{font-size:10px;color:var(--pud);margin-top:3px}
+
+/* ORGANİZASYON KARTLARI */
+.org-card{background:var(--bg);border:.5px solid var(--br);border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer}
+.org-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:6px}
+.org-ad{font-size:15px;font-weight:600;color:var(--t)}
+.org-tarih{font-size:12px;color:var(--tm);margin-top:2px}
+.org-tutar{font-size:15px;font-weight:600;color:var(--g)}
+.org-kisi{font-size:11px;color:var(--tm);margin-top:4px}
+
+.empty-st{text-align:center;padding:50px 20px;color:var(--th)}
+.empty-ico{font-size:36px;margin-bottom:10px}
+.fab{position:fixed;bottom:20px;right:20px;width:54px;height:54px;border-radius:50%;background:var(--g);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 6px 20px rgba(29,158,117,.4);z-index:80;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<div class="loading" id="loading">
+  <div class="loading-logo">Saklıdoğa</div>
+  <div class="spinner"></div>
+</div>
+
+<div class="topbar">
+  <div class="tb-top">
+    <div class="tb-logo">🏡 Rezervasyon</div>
+    <button class="tbtn" onclick="openYeni()">+ Yeni</button>
+  </div>
+  <div class="nav-row" id="nav-row">
+    <button class="nav-btn" onclick="haftaDegis(-1)">‹</button>
+    <div class="nav-ttl" id="nav-ttl"></div>
+    <button class="nav-btn" onclick="haftaDegis(1)">›</button>
+  </div>
+  <div class="main-tabs">
+    <div class="mtab active" id="mtab-takvim" onclick="switchMainTab('takvim')">📅 Takvim</div>
+    <div class="mtab" id="mtab-bekleme" onclick="switchMainTab('bekleme')">⏳ Bekleme</div>
+  </div>
+</div>
+
+<!-- TAKVİM SAYFASI -->
+<div class="page active" id="page-takvim">
+  <div class="leg-row">
+    <span class="leg c-begonvil">Begonvil</span>
+    <span class="leg c-lavanta">Lavanta</span>
+    <span class="leg c-ortanca">Ortanca</span>
+    <span class="leg c-karanfil">Karanfil</span>
+    <span class="leg c-gunes">Güneş</span>
+  </div>
+  <div class="tkv-scroll">
+    <div class="tkv-grid" id="tkv"></div>
+  </div>
+</div>
+
+<!-- BEKLEME LİSTESİ SAYFASI -->
+<div class="page" id="page-bekleme">
+  <div style="padding:14px 14px 0">
+    <button class="mbtn pu" onclick="openYedek()">+ Bekleme Listesine Ekle</button>
+  </div>
+  <div style="padding:14px" id="bekleme-list"></div>
+</div>
+
+<!-- YENİ REZERVASYON -->
+<div class="ov" id="ov-yeni" onclick="if(event.target===this)closeOv('ov-yeni')">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="sttl">Yeni Rezervasyon</div>
+    <div class="ssub" id="yeni-sub"></div>
+    <div class="sbd">
+      <div class="fg"><label class="fl">Oda</label>
+        <select class="fi" id="r-oda">
+          <option value="begonvil">🌺 Begonvil</option>
+          <option value="lavanta">💜 Lavanta</option>
+          <option value="ortanca">🩵 Ortanca</option>
+          <option value="karanfil">🌸 Karanfil</option>
+          <option value="gunes">☀️ Güneş</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Ad Soyad *</label><input class="fi" id="r-ad" type="text" placeholder="Misafir adı"></div>
+      <div class="fg"><label class="fl">Telefon</label><input class="fi" id="r-tel" type="tel" placeholder="05xx xxx xx xx"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Yetişkin</label><input class="fi" id="r-yetiskin" type="number" placeholder="2" min="0"></div>
+        <div class="fg"><label class="fl">Çocuk</label><input class="fi" id="r-cocuk" type="number" placeholder="0" min="0"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Giriş *</label><input class="fi" id="r-giris" type="date"></div>
+        <div class="fg"><label class="fl">Çıkış *</label><input class="fi" id="r-cikis" type="date"></div>
+      </div>
+      <div class="fg"><label class="fl">Toplam Ücret (₺)</label><input class="fi" id="r-ucret" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Ödeme Durumu</label>
+        <select class="fi" id="r-odeme">
+          <option value="dolu">Rezervasyon (Ödeme Yok)</option>
+          <option value="kapora">Kapora Alındı</option>
+          <option value="tam">Ödeme Tamamlandı</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Kahvaltı</label>
+        <select class="fi" id="r-kahvalti">
+          <option value="var">☕ Kahvaltı Dahil</option>
+          <option value="yok">❌ Kahvaltı Yok</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Not</label><input class="fi" id="r-not" type="text" placeholder="İsteğe bağlı..."></div>
+      <button class="mbtn gr" onclick="saveRez()">Rezervasyonu Kaydet</button>
+      <button class="mbtn gy" onclick="closeOv('ov-yeni')">Vazgeç</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAY MODAL -->
+<div class="ov" id="ov-det" onclick="if(event.target===this)closeOv('ov-det')">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="sttl" id="d-oda"></div>
+    <div class="ssub" id="d-sub"></div>
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:16px">
+
+      <div>
+        <div class="sec-lbl">Misafir Bilgileri</div>
+        <div class="det-row"><span class="det-lbl">Ad Soyad</span><span class="det-val" id="d-ad"></span></div>
+        <div class="det-row"><span class="det-lbl">Telefon</span><a id="d-tel" href="#" style="font-weight:500;color:var(--g);text-decoration:none"></a></div>
+        <div class="det-row"><span class="det-lbl">Yetişkin</span><span class="det-val" id="d-yetiskin"></span></div>
+        <div class="det-row"><span class="det-lbl">Çocuk</span><span class="det-val" id="d-cocuk"></span></div>
+        <div class="det-row"><span class="det-lbl">Giriş</span><span class="det-val" id="d-giris"></span></div>
+        <div class="det-row"><span class="det-lbl">Çıkış</span><span class="det-val" id="d-cikis"></span></div>
+        <div class="det-row"><span class="det-lbl">Kahvaltı</span><span class="det-val" id="d-kvlt"></span></div>
+        <div class="det-row" id="d-not-row"><span class="det-lbl">Not</span><span class="det-val" id="d-not"></span></div>
+      </div>
+
+      <div>
+        <div class="sec-lbl">Ücret & Ödeme</div>
+        <div class="ucret-box">
+          <div class="ucret-row">
+            <span class="ucret-lbl">Toplam Ücret</span>
+            <span class="ucret-val" id="d-toplam">₺0</span>
+          </div>
+          <div class="ucret-row">
+            <span class="ucret-lbl">Alınan Ödeme</span>
+            <span class="ucret-val" id="d-alinan">₺0</span>
+          </div>
+          <div class="ucret-divider"></div>
+          <div class="ucret-row">
+            <span class="ucret-lbl" style="font-size:13px">Kalan Ödeme</span>
+            <span class="ucret-kalan" id="d-kalan">₺0</span>
+          </div>
+        </div>
+        <div id="odeme-gecmis" style="margin-top:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input class="fi" id="odeme-miktar" type="number" placeholder="₺ Tutar gir..." min="0" style="flex:1">
+          <button onclick="odemeEkle()" style="background:var(--g);color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">+ Ekle</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:7px;align-items:center">
+          <input class="fi" id="ucret-duzenle" type="number" placeholder="Toplam ücreti güncelle..." min="0" style="flex:1">
+          <button onclick="ucretGuncelle()" style="background:var(--aml);color:var(--amd);border:.5px solid var(--am);border-radius:8px;padding:0 12px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;height:38px">Güncelle</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="sec-lbl">Rezervasyon Durumu</div>
+        <div class="dur3">
+          <button class="dur-btn" id="db-dolu"   onclick="durumDegis('dolu')">🔴 Rezervasyon</button>
+          <button class="dur-btn" id="db-kapora" onclick="durumDegis('kapora')">🟡 Kapora</button>
+          <button class="dur-btn" id="db-tam"    onclick="durumDegis('tam')">🟢 Tam Ödeme</button>
+        </div>
+      </div>
+
+      <div class="act2">
+        <button class="mbtn rd" style="flex:1" onclick="silRez()">🗑️ Sil</button>
+        <a id="d-ara" href="#" class="mbtn gr" style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none">📞 Ara</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- YEDEK / BEKLEME LİSTESİ MODAL -->
+<div class="ov" id="ov-yedek" onclick="if(event.target===this)closeOv('ov-yedek')">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="sttl">⏳ Bekleme Listesine Ekle</div>
+    <div class="ssub">Oda doluyken yedek talep olarak kaydet</div>
+    <div class="sbd">
+      <div class="fg"><label class="fl">Tercih Edilen Oda</label>
+        <select class="fi" id="y-oda">
+          <option value="">Fark etmez</option>
+          <option value="begonvil">🌺 Begonvil</option>
+          <option value="lavanta">💜 Lavanta</option>
+          <option value="ortanca">🩵 Ortanca</option>
+          <option value="karanfil">🌸 Karanfil</option>
+          <option value="gunes">☀️ Güneş</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Ad Soyad *</label><input class="fi" id="y-ad" type="text" placeholder="Misafir adı"></div>
+      <div class="fg"><label class="fl">Telefon *</label><input class="fi" id="y-tel" type="tel" placeholder="05xx xxx xx xx"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">İstenen Giriş</label><input class="fi" id="y-giris" type="date"></div>
+        <div class="fg"><label class="fl">İstenen Çıkış</label><input class="fi" id="y-cikis" type="date"></div>
+      </div>
+      <div class="fg"><label class="fl">Not</label><input class="fi" id="y-not" type="text" placeholder="İsteğe bağlı..."></div>
+      <button class="mbtn pu" onclick="saveYedek()">Bekleme Listesine Ekle</button>
+      <button class="mbtn gy" onclick="closeOv('ov-yedek')">Vazgeç</button>
+    </div>
+  </div>
+</div>
+
+<!-- YEDEK DETAY -->
+<div class="ov" id="ov-yedek-det" onclick="if(event.target===this)closeOv('ov-yedek-det')">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="sttl">Bekleme Listesi Detayı</div>
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:14px">
+      <div>
+        <div class="det-row"><span class="det-lbl">Ad Soyad</span><span class="det-val" id="yd-ad"></span></div>
+        <div class="det-row"><span class="det-lbl">Telefon</span><a id="yd-tel" href="#" style="font-weight:500;color:var(--g);text-decoration:none"></a></div>
+        <div class="det-row"><span class="det-lbl">Tercih Oda</span><span class="det-val" id="yd-oda"></span></div>
+        <div class="det-row"><span class="det-lbl">İstenen Tarih</span><span class="det-val" id="yd-tarih"></span></div>
+        <div class="det-row" id="yd-not-row"><span class="det-lbl">Not</span><span class="det-val" id="yd-not"></span></div>
+      </div>
+      <div class="act2">
+        <button class="mbtn rd" style="flex:1" onclick="silYedek()">🗑️ Sil</button>
+        <a id="yd-ara" href="#" class="mbtn gr" style="flex:1;display:flex;align-items:center;justify-content:center;text-decoration:none">📞 Ara</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ORGANİZASYON MODAL -->
+<div class="ov" id="ov-org" onclick="if(event.target===this)closeOv('ov-org')">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="sttl" id="org-modal-ttl">Yeni Organizasyon</div>
+    <div class="sbd">
+      <input type="hidden" id="org-edit-id">
+      <div class="fg"><label class="fl">Etkinlik Adı *</label><input class="fi" id="o-ad" type="text" placeholder="örn. Ayşe & Mehmet Düğünü"></div>
+      <div class="fg"><label class="fl">İletişim Kişisi</label><input class="fi" id="o-kisi" type="text" placeholder="Organizasyon sahibi adı"></div>
+      <div class="fg"><label class="fl">Telefon</label><input class="fi" id="o-tel" type="tel" placeholder="05xx xxx xx xx"></div>
+      <div class="frow">
+        <div class="fg"><label class="fl">Tarih</label><input class="fi" id="o-tarih" type="date"></div>
+        <div class="fg"><label class="fl">Saat</label><input class="fi" id="o-saat" type="time"></div>
+      </div>
+      <div class="fg"><label class="fl">Kişi Sayısı</label><input class="fi" id="o-kisisayisi" type="number" placeholder="örn. 50" min="0"></div>
+      <div class="fg"><label class="fl">Toplam Ücret (₺)</label><input class="fi" id="o-ucret" type="number" placeholder="0" min="0"></div>
+      <div class="fg"><label class="fl">Açıklama</label><input class="fi" id="o-aciklama" type="text" placeholder="Detaylar..."></div>
+      <button class="mbtn gr" onclick="saveOrg()">Kaydet</button>
+      <button class="mbtn gy" onclick="closeOv('ov-org')">Vazgeç</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORGANİZASYON DETAY -->
+<div class="ov" id="ov-org-det" onclick="if(event.target===this)closeOv('ov-org-det')">
+  <div class="sheet">
+    <div class="shandle"></div>
+    <div class="sttl" id="od-ad"></div>
+    <div class="ssub" id="od-tarih-sub"></div>
+    <div style="padding:0 16px 16px;display:flex;flex-direction:column;gap:16px">
+      <div>
+        <div class="det-row"><span class="det-lbl">İletişim Kişisi</span><span class="det-val" id="od-kisi"></span></div>
+        <div class="det-row"><span class="det-lbl">Telefon</span><a id="od-tel" href="#" style="font-weight:500;color:var(--g);text-decoration:none"></a></div>
+        <div class="det-row"><span class="det-lbl">Tarih</span><span class="det-val" id="od-tarih"></span></div>
+        <div class="det-row"><span class="det-lbl">Saat</span><span class="det-val" id="od-saat"></span></div>
+        <div class="det-row"><span class="det-lbl">Kişi Sayısı</span><span class="det-val" id="od-kisisayisi"></span></div>
+        <div class="det-row" id="od-aciklama-row"><span class="det-lbl">Açıklama</span><span class="det-val" id="od-aciklama"></span></div>
+      </div>
+
+      <div>
+        <div class="sec-lbl">Ücret & Ödeme</div>
+        <div class="ucret-box">
+          <div class="ucret-row"><span class="ucret-lbl">Toplam Ücret</span><span class="ucret-val" id="od-toplam">₺0</span></div>
+          <div class="ucret-row"><span class="ucret-lbl">Alınan Ödeme</span><span class="ucret-val" id="od-alinan">₺0</span></div>
+          <div class="ucret-divider"></div>
+          <div class="ucret-row"><span class="ucret-lbl" style="font-size:13px">Kalan Ödeme</span><span class="ucret-kalan" id="od-kalan">₺0</span></div>
+        </div>
+        <div id="org-odeme-gecmis" style="margin-top:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input class="fi" id="org-odeme-miktar" type="number" placeholder="₺ Tutar gir..." min="0" style="flex:1">
+          <button onclick="orgOdemeEkle()" style="background:var(--g);color:#fff;border:none;border-radius:8px;padding:0 14px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0">+ Ekle</button>
+        </div>
+      </div>
+
+      <div class="act2">
+        <button class="mbtn rd" style="flex:1" onclick="silOrg()">🗑️ Sil</button>
+        <button class="mbtn gy" style="flex:1" onclick="editOrg()">✏️ Düzenle</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const FC = {
+  apiKey:"AIzaSyC-HliZQmaKsCNqBiOHnL--6dSPtE0ALXU",
+  authDomain:"saklidoga-e05f5.firebaseapp.com",
+  databaseURL:"https://saklidoga-e05f5-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"saklidoga-e05f5",
+  storageBucket:"saklidoga-e05f5.firebasestorage.app",
+  messagingSenderId:"236887108719",
+  appId:"1:236887108719:web:deaecdabce23764a35319a"
+};
+const app = initializeApp(FC);
+const db  = getDatabase(app);
+
+const ODALAR = [
+  {id:'begonvil',ad:'Begonvil', emoji:'🌺'},
+  {id:'lavanta', ad:'Lavanta',  emoji:'💜'},
+  {id:'ortanca', ad:'Ortanca',  emoji:'🩵'},
+  {id:'karanfil',ad:'Karanfil', emoji:'🌸'},
+  {id:'gunes',   ad:'Güneş',   emoji:'☀️'},
+];
+const GUNLER = ['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+const AYLAR  = ['Ocak','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+
+let rezervasyonlar = {};
+let yedekler = {};
+let organizasyonlar = {};
+let aktifId = null;
+let aktifYedekId = null;
+let aktifOrgId = null;
+let activeMainTab = 'takvim';
+
+const pad = n => String(n).padStart(2,'0');
+const dateStr = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const todayStr = () => dateStr(new Date());
+const fmtD = s => { if(!s)return '—'; const p=s.split('-'); return `${p[2]}.${p[1]}.${p[0]}`; };
+const fmtTL = n => '₺' + (Number(n)||0).toLocaleString('tr-TR');
+
+// Hafta başlangıcı (Pazartesi)
+let haftaBas = new Date();
+haftaBas.setHours(0,0,0,0);
+const gd = haftaBas.getDay();
+haftaBas.setDate(haftaBas.getDate() + (gd===0 ? -6 : 1-gd));
+
+function getGunler() {
+  return Array.from({length:7}, (_,i) => {
+    const d = new Date(haftaBas);
+    d.setDate(d.getDate()+i);
+    return d;
+  });
+}
+
+window.haftaDegis = d => {
+  haftaBas.setDate(haftaBas.getDate() + d*7);
+  renderTakvim();
+};
+
+function getRez(odaId, tarih) {
+  return Object.values(rezervasyonlar).find(r =>
+    r.oda===odaId && tarih>=r.giris && tarih<r.cikis
+  );
+}
+
+// ─── ANA SEKME GEÇİŞİ ─────────────────────────────────
+window.switchMainTab = tab => {
+  activeMainTab = tab;
+  ['takvim','bekleme'].forEach(t => {
+    document.getElementById('mtab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('page-'+t).classList.toggle('active', t===tab);
+  });
+  document.getElementById('nav-row').style.display = tab==='takvim' ? 'flex' : 'none';
+  if(tab==='bekleme') renderBekleme();
+};
+
+// ─── FIREBASE LISTENERS ────────────────────────────────
+onValue(ref(db,'rezervasyon'), snap => {
+  rezervasyonlar = snap.val() || {};
+  renderTakvim();
+  document.getElementById('loading').style.display = 'none';
+  if(aktifId && rezervasyonlar[aktifId]) renderDetay(aktifId);
+});
+
+onValue(ref(db,'bekleme'), snap => {
+  yedekler = snap.val() || {};
+  if(activeMainTab==='bekleme') renderBekleme();
+});
+
+onValue(ref(db,'organizasyon'), snap => {
+  organizasyonlar = snap.val() || {};
+  if(activeMainTab==='org') renderOrgList();
+});
+
+// ─── TAKVİM ─────────────────────────────────────────────
+function renderTakvim() {
+  const gunler = getGunler();
+  const bugun  = todayStr();
+  const ilk = gunler[0], son = gunler[6];
+  document.getElementById('nav-ttl').textContent =
+    `${ilk.getDate()} ${AYLAR[ilk.getMonth()]} – ${son.getDate()} ${AYLAR[son.getMonth()]} ${son.getFullYear()}`;
+
+  const cols = `72px repeat(7,1fr)`;
+  let html = '';
+
+  html += `<div style="display:grid;grid-template-columns:${cols};gap:3px"><div></div>`;
+  gunler.forEach(d => {
+    const t = dateStr(d), isb = t===bugun;
+    html += `<div class="th${isb?' bugun':''}">
+      <span class="gno">${d.getDate()}</span>
+      <span class="gad">${GUNLER[(d.getDay()+6)%7]}</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  ODALAR.forEach(oda => {
+    html += `<div style="display:grid;grid-template-columns:${cols};gap:3px;margin-top:3px">`;
+    html += `<div class="oda-lbl">${oda.ad}</div>`;
+    gunler.forEach(d => {
+      const t = dateStr(d), isb = t===bugun;
+      const rez = getRez(oda.id, t);
+      if(rez) {
+        const nm = rez.ad ? rez.ad.split(' ')[0] : '?';
+        const st = {dolu:'Rezervasyon', kapora:'Kapora', tam:'Tam Ödeme'}[rez.odeme||'dolu'];
+        html += `<div class="cell filled${isb?' bugun-col':''}" onclick="showDetay('${rez.id}')">
+          <div class="rez-bl c-${oda.id}"><span class="rez-nm">${nm}</span><span class="rez-st">${st}</span></div>
+        </div>`;
+      } else {
+        html += `<div class="cell${isb?' bugun-col':''}" onclick="openYeniOdaGun('${oda.id}','${t}')"></div>`;
+      }
+    });
+    html += '</div>';
+  });
+
+  // ORGANİZASYON SATIRI - Güneş'in altında
+  html += `<div style="display:grid;grid-template-columns:${cols};gap:3px;margin-top:3px">`;
+  html += `<div class="oda-lbl" style="background:var(--pul);color:var(--pud)">🎉 Organizasyon</div>`;
+  gunler.forEach(d => {
+    const t = dateStr(d), isb = t===bugun;
+    const org = Object.values(organizasyonlar).find(o => o.tarih === t);
+    if(org) {
+      html += `<div class="cell filled${isb?' bugun-col':''}" onclick="showOrgDetay('${org.id}')">
+        <div class="rez-bl" style="background:var(--pul);color:var(--pud)">
+          <span class="rez-nm">${org.ad}</span>
+          <span class="rez-st">${org.saat||''}</span>
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="cell${isb?' bugun-col':''}" onclick="openOrgGun('${t}')"></div>`;
+    }
+  });
+  html += '</div>';
+
+  document.getElementById('tkv').innerHTML = html;
+}
+
+// ─── YENİ REZ ───────────────────────────────────────────
+window.openYeni = () => {
+  ['r-ad','r-tel','r-not','r-ucret'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('r-yetiskin').value = '2';
+  document.getElementById('r-cocuk').value = '0';
+  document.getElementById('r-odeme').value = 'dolu';
+  document.getElementById('r-kahvalti').value = 'var';
+  const t = todayStr();
+  document.getElementById('r-giris').value = t;
+  const c = new Date(t); c.setDate(c.getDate()+1);
+  document.getElementById('r-cikis').value = dateStr(c);
+  document.getElementById('yeni-sub').textContent = '';
+  openOv('ov-yeni');
+};
+
+window.openYeniOdaGun = (odaId, tarih) => {
+  openYeni();
+  document.getElementById('r-oda').value = odaId;
+  document.getElementById('r-giris').value = tarih;
+  const c = new Date(tarih); c.setDate(c.getDate()+1);
+  document.getElementById('r-cikis').value = dateStr(c);
+  const oda = ODALAR.find(o=>o.id===odaId);
+  document.getElementById('yeni-sub').textContent = oda ? `${oda.emoji} ${oda.ad}` : '';
+};
+
+window.saveRez = async () => {
+  const ad    = document.getElementById('r-ad').value.trim();
+  const giris = document.getElementById('r-giris').value;
+  const cikis = document.getElementById('r-cikis').value;
+  const oda   = document.getElementById('r-oda').value;
+  if(!ad)          { alert('Ad Soyad gerekli'); return; }
+  if(!giris||!cikis) { alert('Tarih gerekli'); return; }
+  if(cikis <= giris) { alert('Çıkış tarihi giriş tarihinden sonra olmalı'); return; }
+
+  const cakisan = Object.values(rezervasyonlar).find(r =>
+    r.oda===oda && !(cikis<=r.giris || giris>=r.cikis)
+  );
+  if(cakisan) { alert(`Bu oda ${fmtD(cakisan.giris)}–${fmtD(cakisan.cikis)} tarihleri dolu!`); return; }
+
+  const newRef = push(ref(db,'rezervasyon'));
+  await set(newRef, {
+    id:       newRef.key,
+    oda, ad,
+    tel:      document.getElementById('r-tel').value,
+    yetiskin: parseInt(document.getElementById('r-yetiskin').value)||0,
+    cocuk:    parseInt(document.getElementById('r-cocuk').value)||0,
+    giris, cikis,
+    odeme:    document.getElementById('r-odeme').value,
+    kahvalti: document.getElementById('r-kahvalti').value,
+    not:      document.getElementById('r-not').value,
+    ucret:    parseInt(document.getElementById('r-ucret').value)||0,
+    odemeler: {}
+  });
+  closeOv('ov-yeni');
+};
+
+// ─── DETAY ──────────────────────────────────────────────
+window.showDetay = id => {
+  aktifId = id;
+  renderDetay(id);
+  openOv('ov-det');
+};
+
+function renderDetay(id) {
+  const r = rezervasyonlar[id];
+  if(!r) return;
+  const oda = ODALAR.find(o=>o.id===r.oda);
+  document.getElementById('d-oda').textContent = `${oda?.emoji||''} ${oda?.ad||r.oda}`;
+  const gece = Math.round((new Date(r.cikis)-new Date(r.giris))/86400000);
+  document.getElementById('d-sub').textContent = `${fmtD(r.giris)} → ${fmtD(r.cikis)} · ${gece} gece`;
+  document.getElementById('d-ad').textContent    = r.ad || '—';
+  document.getElementById('d-yetiskin').textContent = (r.yetiskin||0) + ' kişi';
+  document.getElementById('d-cocuk').textContent = (r.cocuk||0) + ' kişi';
+  document.getElementById('d-giris').textContent = fmtD(r.giris);
+  document.getElementById('d-cikis').textContent = fmtD(r.cikis);
+  document.getElementById('d-kvlt').textContent  = r.kahvalti==='var' ? '☕ Dahil' : '❌ Yok';
+  const notRow = document.getElementById('d-not-row');
+  if(r.not) { notRow.style.display='flex'; document.getElementById('d-not').textContent=r.not; }
+  else notRow.style.display='none';
+  const telEl = document.getElementById('d-tel');
+  telEl.textContent = r.tel||'—';
+  telEl.href = r.tel ? 'tel:'+r.tel.replace(/\s/g,'') : '#';
+  document.getElementById('d-ara').href = r.tel ? 'tel:'+r.tel.replace(/\s/g,'') : '#';
+
+  const toplam  = Number(r.ucret)||0;
+  const odemeler= r.odemeler ? Object.values(r.odemeler) : [];
+  const alinan  = odemeler.reduce((s,o)=>s+(Number(o.miktar)||0), 0);
+  const kalan   = toplam - alinan;
+
+  document.getElementById('d-toplam').textContent = fmtTL(toplam);
+  document.getElementById('d-alinan').textContent = fmtTL(alinan);
+  const kalanEl = document.getElementById('d-kalan');
+  kalanEl.textContent = fmtTL(kalan);
+  kalanEl.className = 'ucret-kalan' + (kalan<=0 ? ' sifir' : '');
+
+  const gecmisEl = document.getElementById('odeme-gecmis');
+  if(odemeler.length) {
+    gecmisEl.innerHTML = odemeler.sort((a,b)=>a.tarih.localeCompare(b.tarih)).map(o=>`
+      <div class="odeme-item">
+        <div>
+          <div class="odeme-item-lbl">${fmtTL(o.miktar)}</div>
+          <div class="odeme-item-dt">${fmtD(o.tarih)}</div>
+        </div>
+        <button class="odeme-sil" onclick="odemeKaldir('${o.id}')">✕</button>
+      </div>`).join('');
+  } else {
+    gecmisEl.innerHTML = '';
+  }
+
+  document.getElementById('ucret-duzenle').value = toplam || '';
+  document.getElementById('odeme-miktar').value  = '';
+
+  ['dolu','kapora','tam'].forEach(d => {
+    document.getElementById('db-'+d).className = 'dur-btn' + (r.odeme===d ? ' ak-'+d : '');
+  });
+}
+
+window.odemeEkle = async () => {
+  if(!aktifId) return;
+  const miktar = parseInt(document.getElementById('odeme-miktar').value)||0;
+  if(!miktar || miktar<=0) { alert('Geçerli bir tutar girin'); return; }
+  const newRef = push(ref(db,`rezervasyon/${aktifId}/odemeler`));
+  await set(newRef, { id:newRef.key, miktar, tarih:todayStr() });
+  document.getElementById('odeme-miktar').value = '';
+};
+
+window.odemeKaldir = async odeId => {
+  if(!aktifId) return;
+  if(!confirm('Bu ödemeyi silmek istiyor musunuz?')) return;
+  await remove(ref(db,`rezervasyon/${aktifId}/odemeler/${odeId}`));
+};
+
+window.ucretGuncelle = async () => {
+  if(!aktifId) return;
+  const ucret = parseInt(document.getElementById('ucret-duzenle').value)||0;
+  await update(ref(db,'rezervasyon/'+aktifId), {ucret});
+};
+
+window.durumDegis = async durum => {
+  if(!aktifId) return;
+  await update(ref(db,'rezervasyon/'+aktifId), {odeme:durum});
+  ['dolu','kapora','tam'].forEach(d => {
+    document.getElementById('db-'+d).className = 'dur-btn' + (d===durum ? ' ak-'+d : '');
+  });
+};
+
+window.silRez = async () => {
+  if(!aktifId) return;
+  const r = rezervasyonlar[aktifId];
+  const oda = ODALAR.find(o=>o.id===r?.oda);
+  if(!confirm(`${oda?.ad||''} — ${r?.ad||''} rezervasyonunu silmek istiyor musunuz?`)) return;
+  await remove(ref(db,'rezervasyon/'+aktifId));
+  aktifId = null;
+  closeOv('ov-det');
+};
+
+// ─── BEKLEME LİSTESİ ────────────────────────────────────
+window.openYedek = () => {
+  ['y-oda','y-ad','y-tel','y-giris','y-cikis','y-not'].forEach(id => document.getElementById(id).value='');
+  openOv('ov-yedek');
+};
+
+window.saveYedek = async () => {
+  const ad = document.getElementById('y-ad').value.trim();
+  const tel = document.getElementById('y-tel').value.trim();
+  if(!ad) { alert('Ad Soyad gerekli'); return; }
+  if(!tel) { alert('Telefon gerekli'); return; }
+  const newRef = push(ref(db,'bekleme'));
+  await set(newRef, {
+    id: newRef.key,
+    oda: document.getElementById('y-oda').value,
+    ad, tel,
+    giris: document.getElementById('y-giris').value,
+    cikis: document.getElementById('y-cikis').value,
+    not: document.getElementById('y-not').value,
+    eklenmeTarihi: todayStr()
+  });
+  closeOv('ov-yedek');
+};
+
+function renderBekleme() {
+  const el = document.getElementById('bekleme-list');
+  const list = Object.values(yedekler).sort((a,b)=>(b.eklenmeTarihi||'').localeCompare(a.eklenmeTarihi||''));
+  if(!list.length) {
+    el.innerHTML = `<div class="empty-st"><div class="empty-ico">⏳</div><div>Bekleme listesi boş</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(y => {
+    const oda = ODALAR.find(o=>o.id===y.oda);
+    const tarihTxt = y.giris ? `${fmtD(y.giris)}${y.cikis?' → '+fmtD(y.cikis):''}` : 'Tarih belirtilmedi';
+    return `<div class="yedek-card" onclick="showYedekDetay('${y.id}')">
+      <div class="yedek-top">
+        <span class="yedek-ad">${y.ad}</span>
+        <span class="yedek-tarih">${tarihTxt}</span>
+      </div>
+      <div class="yedek-oda">${oda ? oda.emoji+' '+oda.ad : '🏠 Fark etmez'} · 📞 ${y.tel}</div>
+    </div>`;
+  }).join('');
+}
+
+window.showYedekDetay = id => {
+  aktifYedekId = id;
+  const y = yedekler[id];
+  if(!y) return;
+  const oda = ODALAR.find(o=>o.id===y.oda);
+  document.getElementById('yd-ad').textContent = y.ad;
+  document.getElementById('yd-tel').textContent = y.tel;
+  document.getElementById('yd-tel').href = 'tel:'+y.tel.replace(/\s/g,'');
+  document.getElementById('yd-ara').href = 'tel:'+y.tel.replace(/\s/g,'');
+  document.getElementById('yd-oda').textContent = oda ? `${oda.emoji} ${oda.ad}` : 'Fark etmez';
+  document.getElementById('yd-tarih').textContent = y.giris ? `${fmtD(y.giris)}${y.cikis?' → '+fmtD(y.cikis):''}` : 'Belirtilmedi';
+  const notRow = document.getElementById('yd-not-row');
+  if(y.not) { notRow.style.display='flex'; document.getElementById('yd-not').textContent=y.not; }
+  else notRow.style.display='none';
+  openOv('ov-yedek-det');
+};
+
+window.silYedek = async () => {
+  if(!aktifYedekId) return;
+  if(!confirm('Bu bekleme kaydını silmek istiyor musunuz?')) return;
+  await remove(ref(db,'bekleme/'+aktifYedekId));
+  aktifYedekId = null;
+  closeOv('ov-yedek-det');
+};
+
+// ─── ORGANİZASYON ───────────────────────────────────────
+window.openOrg = () => {
+  document.getElementById('org-modal-ttl').textContent = 'Yeni Organizasyon';
+  document.getElementById('org-edit-id').value = '';
+  ['o-ad','o-kisi','o-tel','o-tarih','o-saat','o-kisisayisi','o-ucret','o-aciklama'].forEach(id => document.getElementById(id).value='');
+  openOv('ov-org');
+};
+
+window.openOrgGun = tarih => {
+  openOrg();
+  document.getElementById('o-tarih').value = tarih;
+};
+
+window.saveOrg = async () => {
+  const ad = document.getElementById('o-ad').value.trim();
+  if(!ad) { alert('Etkinlik adı gerekli'); return; }
+  const editId = document.getElementById('org-edit-id').value;
+  const data = {
+    ad,
+    kisi:        document.getElementById('o-kisi').value,
+    tel:         document.getElementById('o-tel').value,
+    tarih:       document.getElementById('o-tarih').value,
+    saat:        document.getElementById('o-saat').value,
+    kisisayisi:  parseInt(document.getElementById('o-kisisayisi').value)||0,
+    ucret:       parseInt(document.getElementById('o-ucret').value)||0,
+    aciklama:    document.getElementById('o-aciklama').value,
+  };
+  if(editId) {
+    await update(ref(db,'organizasyon/'+editId), data);
+  } else {
+    const newRef = push(ref(db,'organizasyon'));
+    data.id = newRef.key;
+    data.odemeler = {};
+    await set(newRef, data);
+  }
+  closeOv('ov-org');
+};
+
+function renderOrgList() {
+  const el = document.getElementById('org-list');
+  const list = Object.values(organizasyonlar).sort((a,b)=>(a.tarih||'').localeCompare(b.tarih||''));
+  if(!list.length) {
+    el.innerHTML = `<div class="empty-st"><div class="empty-ico">🎉</div><div>Henüz organizasyon yok</div></div>`;
+    return;
+  }
+  el.innerHTML = list.map(o => {
+    const odemeler = o.odemeler ? Object.values(o.odemeler) : [];
+    const alinan = odemeler.reduce((s,od)=>s+(Number(od.miktar)||0),0);
+    const toplam = Number(o.ucret)||0;
+    return `<div class="org-card" onclick="showOrgDetay('${o.id}')">
+      <div class="org-top">
+        <div>
+          <div class="org-ad">${o.ad}</div>
+          <div class="org-tarih">${o.tarih?fmtD(o.tarih):'Tarih yok'}${o.saat?' · '+o.saat:''}</div>
+        </div>
+        <div class="org-tutar">${fmtTL(toplam)}</div>
+      </div>
+      <div class="org-kisi">${o.kisisayisi?o.kisisayisi+' kişi':''}${o.kisi?' · '+o.kisi:''} ${alinan>0?'· Alınan: '+fmtTL(alinan):''}</div>
+    </div>`;
+  }).join('');
+}
+
+window.showOrgDetay = id => {
+  aktifOrgId = id;
+  const o = organizasyonlar[id];
+  if(!o) return;
+  document.getElementById('od-ad').textContent = o.ad;
+  document.getElementById('od-tarih-sub').textContent = (o.tarih?fmtD(o.tarih):'') + (o.saat?' · '+o.saat:'');
+  document.getElementById('od-kisi').textContent = o.kisi || '—';
+  document.getElementById('od-tel').textContent = o.tel || '—';
+  document.getElementById('od-tel').href = o.tel ? 'tel:'+o.tel.replace(/\s/g,'') : '#';
+  document.getElementById('od-tarih').textContent = o.tarih ? fmtD(o.tarih) : '—';
+  document.getElementById('od-saat').textContent = o.saat || '—';
+  document.getElementById('od-kisisayisi').textContent = (o.kisisayisi||0) + ' kişi';
+  const aciklamaRow = document.getElementById('od-aciklama-row');
+  if(o.aciklama) { aciklamaRow.style.display='flex'; document.getElementById('od-aciklama').textContent=o.aciklama; }
+  else aciklamaRow.style.display='none';
+
+  const toplam = Number(o.ucret)||0;
+  const odemeler = o.odemeler ? Object.values(o.odemeler) : [];
+  const alinan = odemeler.reduce((s,od)=>s+(Number(od.miktar)||0),0);
+  const kalan = toplam - alinan;
+  document.getElementById('od-toplam').textContent = fmtTL(toplam);
+  document.getElementById('od-alinan').textContent = fmtTL(alinan);
+  const kalanEl = document.getElementById('od-kalan');
+  kalanEl.textContent = fmtTL(kalan);
+  kalanEl.className = 'ucret-kalan' + (kalan<=0 ? ' sifir' : '');
+
+  const gecmisEl = document.getElementById('org-odeme-gecmis');
+  if(odemeler.length) {
+    gecmisEl.innerHTML = odemeler.sort((a,b)=>a.tarih.localeCompare(b.tarih)).map(od=>`
+      <div class="odeme-item">
+        <div><div class="odeme-item-lbl">${fmtTL(od.miktar)}</div><div class="odeme-item-dt">${fmtD(od.tarih)}</div></div>
+        <button class="odeme-sil" onclick="orgOdemeKaldir('${od.id}')">✕</button>
+      </div>`).join('');
+  } else gecmisEl.innerHTML = '';
+  document.getElementById('org-odeme-miktar').value = '';
+
+  openOv('ov-org-det');
+};
+
+window.orgOdemeEkle = async () => {
+  if(!aktifOrgId) return;
+  const miktar = parseInt(document.getElementById('org-odeme-miktar').value)||0;
+  if(!miktar || miktar<=0) { alert('Geçerli bir tutar girin'); return; }
+  const newRef = push(ref(db,`organizasyon/${aktifOrgId}/odemeler`));
+  await set(newRef, { id:newRef.key, miktar, tarih:todayStr() });
+  document.getElementById('org-odeme-miktar').value = '';
+};
+
+window.orgOdemeKaldir = async odeId => {
+  if(!aktifOrgId) return;
+  if(!confirm('Bu ödemeyi silmek istiyor musunuz?')) return;
+  await remove(ref(db,`organizasyon/${aktifOrgId}/odemeler/${odeId}`));
+};
+
+window.editOrg = () => {
+  if(!aktifOrgId) return;
+  const o = organizasyonlar[aktifOrgId];
+  if(!o) return;
+  document.getElementById('org-modal-ttl').textContent = 'Organizasyonu Düzenle';
+  document.getElementById('org-edit-id').value = aktifOrgId;
+  document.getElementById('o-ad').value = o.ad || '';
+  document.getElementById('o-kisi').value = o.kisi || '';
+  document.getElementById('o-tel').value = o.tel || '';
+  document.getElementById('o-tarih').value = o.tarih || '';
+  document.getElementById('o-saat').value = o.saat || '';
+  document.getElementById('o-kisisayisi').value = o.kisisayisi || '';
+  document.getElementById('o-ucret').value = o.ucret || '';
+  document.getElementById('o-aciklama').value = o.aciklama || '';
+  closeOv('ov-org-det');
+  openOv('ov-org');
+};
+
+window.silOrg = async () => {
+  if(!aktifOrgId) return;
+  const o = organizasyonlar[aktifOrgId];
+  if(!confirm(`"${o?.ad||''}" organizasyonunu silmek istiyor musunuz?`)) return;
+  await remove(ref(db,'organizasyon/'+aktifOrgId));
+  aktifOrgId = null;
+  closeOv('ov-org-det');
+};
+
+// ─── ORTAK ──────────────────────────────────────────────
+window.openOv  = id => document.getElementById(id).classList.add('open');
+window.closeOv = id => document.getElementById(id).classList.remove('open');
+</script>
+</body>
+</html>
